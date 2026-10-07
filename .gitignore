@@ -1,0 +1,9 @@
+target/
+.videopost/
+*.db
+*.log
+.DS_Store
+.idea/
+*.iml
+.vscode/
+credentials/
