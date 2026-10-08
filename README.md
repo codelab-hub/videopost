@@ -17,24 +17,25 @@ Desenvolvido com foco em **Clean Architecture**, **local-first** (sem dependênc
 8. [Estratégia de Segurança das Credenciais](#-estratégia-de-segurança-das-credenciais)
 9. [Autenticação das Plataformas](#-autenticação-das-plataformas)
 10. [Metadados dos Vídeos (.mp4 + .json)](#-metadados-dos-vídeos-mp4--json)
-11. [Guia de Comandos da CLI](#-guia-de-comandos-da-cli)
-12. [Ciclo de Publicação e Scheduler](#-ciclo-de-publicação-e-scheduler)
-13. [Isolamento de Falhas, Idempotência e Retry](#-isolamento-de-falhas-idempotência-e-retry)
-14. [Status das APIs Oficiais e Limitações Conhecidas](#-status-das-apis-oficiais-e-limitações-conhecidas)
-15. [Como Adicionar uma Nova Plataforma](#-como-adicionar-uma-nova-plataforma)
-16. [Troubleshooting e Diagnóstico](#-troubleshooting-e-diagnóstico)
+11. [Automação 24/7 na Nuvem & Google Drive Sync & Lovable](#-automação-247-na-nuvem--google-drive-sync--lovable)
+12. [Guia de Comandos da CLI](#-guia-de-comandos-da-cli)
+13. [Ciclo de Publicação e Scheduler](#-ciclo-de-publicação-e-scheduler)
+14. [Isolamento de Falhas, Idempotência e Retry](#-isolamento-de-falhas-idempotência-e-retry)
+15. [Status das APIs Oficiais e Limitações Conhecidas](#-status-das-apis-oficiais-e-limitações-conhecidas)
+16. [Como Adicionar uma Nova Plataforma](#-como-adicionar-uma-nova-plataforma)
+17. [Troubleshooting e Diagnóstico](#-troubleshooting-e-diagnóstico)
 
 ---
 
 ## 🎯 Objetivo e Filosofia
 
-O **VideoPost CLI** foi concebido para criadoras de conteúdo e operações de mídia que desejam automatizar o fluxo de postagem de vídeos sem depender de servidores em nuvem dispendiosos ou ferramentas de scraping frágeis.
+O **VideoPost CLI** foi concebido para criadoras de conteúdo e operações de mídia que desejam automatizar o fluxo de postagem de vídeos sem depender de servidores caros ou processos manuais cansativos.
 
 **Fluxo central:**
-1. A usuária coloca os arquivos `.mp4` (e opcionais `.json` com legendas e hashtags) na pasta `./videos`.
-2. A CLI detecta automaticamente novos arquivos e sincroniza a fila com agendamento escalonado no SQLite local.
-3. No horário configurado, o sistema publica o vídeo nas plataformas ativas.
-4. Cada plataforma opera de maneira independente: se o TikTok e o Facebook publicarem com sucesso, mas o Kwai falhar, o status do vídeo torna-se `PARTIALLY_COMPLETED`. O TikTok e Facebook **nunca** serão republicados em duplicidade.
+1. Os vídeos são colocados na pasta `./videos` ou numa pasta do **Google Drive**.
+2. O sistema detecta novos arquivos, gera metadados virais se faltarem e agenda escalonadamente no SQLite local.
+3. No horário configurado (ex: a cada 3h), o sistema publica o vídeo nas plataformas ativas (YouTube Shorts e TikTok).
+4. Cada plataforma opera de maneira independente: se o TikTok publicar com sucesso, mas o YouTube falhar temporariamente por quota, o status do vídeo torna-se `PARTIALLY_COMPLETED`. O TikTok **nunca** será republicado em duplicidade.
 5. Apenas a plataforma com falha é elegível para retry.
 6. Nenhum token ou secret é gravado em texto plano ou exposto em logs.
 
@@ -47,10 +48,19 @@ O projeto adota os princípios de **Clean Architecture** e **Ports and Adapters 
 ```text
 videopost/
 ├── pom.xml
-├── README.md
+├── Dockerfile                            <-- Multi-stage build para Cloud (Railway / Render / VPS)
+├── docker-compose.yml                    <-- Orquestração em contêiner local/servidor
+├── railway.json                          <-- Configuração de deploy 1-click na Railway
+├── LOVABLE_GUIDE.md                      <-- Guia passo a passo de deploy e integração Lovable.dev
 ├── MANUAL_VIDEOPOST_YOUTUBE_TIKTOK.pdf   <-- Manual ilustrado em PDF (A4)
 ├── videopost                             <-- Runner do daemon Java (YouTube Shorts & APIs)
 ├── tiktok                                <-- Runner do microsserviço TikTok Studio
+├── cloud/                                <-- Módulos de Nuvem & Sincronização 24/7
+│   ├── drive_sync.py                     (Sincronizador automático de pastas do Google Drive)
+│   ├── status_api.py                     (FastAPI + Web Dashboard nativo + REST API para Lovable)
+│   ├── bundle.py                         (Exportador e hidratador seguro de credenciais em base64)
+│   ├── entrypoint.sh                     (Orquestrador do contêiner Docker na nuvem)
+│   └── requirements.txt
 ├── tiktok-service/                       <-- Microsserviço Playwright isolado para TikTok Web
 │   ├── config.example.yml
 │   ├── main.py
@@ -339,6 +349,35 @@ videos/
 ```
 
 O CLI associa automaticamente o `.json` ao arquivo de vídeo homônimo. Caso um vídeo não possua arquivo `.json` acompanhante (como `moranguinha-03.mp4`), o sistema o processa normalmente com legenda vazia ou configurada via CLI.
+
+---
+
+## ☁️ Automação 24/7 na Nuvem & Google Drive Sync & Lovable
+
+Deseja que seus vídeos continuem sendo postados no **YouTube Shorts** e **TikTok** sem que o seu computador pessoal precise ficar ligado 24h por dia?
+
+O VideoPost inclui arquitetura completa para **Nuvem (Docker / Railway / Render / VPS)** com integração direta ao **Google Drive** e painel visual para **Lovable.dev**:
+
+### 1. Como funciona o fluxo:
+1. Você joga os vídeos `.mp4` (com ou sem `.json`) em uma pasta compartilhada no seu **Google Drive**.
+2. O serviço em nuvem monitora essa pasta a cada 15 minutos via `cloud/drive_sync.py`.
+3. Novos vídeos são baixados automaticamente e recebem hashtags otimizadas.
+4. O daemon publica automaticamente nos horários programados (cadência configurada de 3 em 3 horas).
+5. A API REST (`cloud/status_api.py`) fornece um painel web nativo em tempo real e permite que você integre com o **Lovable.dev**.
+
+### 2. Exportando as credenciais locais com 1 comando:
+Execute no terminal local para gerar seu pacote de variáveis de ambiente:
+```bash
+python3 cloud/bundle.py export
+```
+O comando criará o `.env.cloud` com seus tokens do YouTube já criptografados em base64 prontos para subir.
+
+### 3. Deploy com 1 clique na Railway:
+- Conecte o repositório `codelab-hub/videopost` na Railway.
+- Cole as variáveis do `.env.cloud` e informe seu `GDRIVE_FOLDER_ID`.
+- Acesse o painel web gerado na URL da Railway (ex: `https://meu-app.up.railway.app/`).
+
+*Para o passo a passo completo e o prompt pronto do Lovable, consulte [LOVABLE_GUIDE.md](file:///Users/ludmilamoreira/videopost/LOVABLE_GUIDE.md).*
 
 ---
 

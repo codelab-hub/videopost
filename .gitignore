@@ -18,6 +18,11 @@ google-credentials*.json
 credentials.json
 client_secrets.json
 oauth-*.json
+.env*
+*.tar.gz
+*.zip
+.drive_sync_state.json
+temp_gdrive_sync/
 
 # 2. Dados Locais de Execução e Perfis
 .videopost/

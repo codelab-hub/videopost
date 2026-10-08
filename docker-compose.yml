@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  videopost:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: videopost-cloud
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+      - VIDEOPOST_PROFILE=${VIDEOPOST_PROFILE:-noticiabrasil}
+      - VIDEOPOST_SECRET_KEY=${VIDEOPOST_SECRET_KEY}
+      - GDRIVE_FOLDER_ID=${GDRIVE_FOLDER_ID}
+      - DRIVE_SYNC_INTERVAL_MINUTES=${DRIVE_SYNC_INTERVAL_MINUTES:-15}
+      - YOUTUBE_ENC_B64=${YOUTUBE_ENC_B64}
+      - VIDEOPOST_CONFIG_B64=${VIDEOPOST_CONFIG_B64}
+    volumes:
+      - videopost_data:/app/.videopost
+      - videopost_videos:/app/videos
+
+volumes:
+  videopost_data:
+  videopost_videos:
