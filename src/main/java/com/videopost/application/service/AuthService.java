@@ -22,13 +22,27 @@ public class AuthService {
     }
 
     public void authenticateTikTok(String profile, String accessToken, String privacyLevel) {
-        if (accessToken == null || accessToken.isBlank()) {
-            throw new IllegalArgumentException("TikTok access token não pode ser vazio.");
+        authenticateTikTok(profile, accessToken, privacyLevel, null, null, null);
+    }
+
+    public void authenticateTikTok(String profile, String accessToken, String privacyLevel, String refreshToken, String clientKey, String clientSecret) {
+        java.util.Map<String, String> creds = new java.util.HashMap<>();
+        if (accessToken != null && !accessToken.isBlank()) {
+            creds.put("accessToken", accessToken.trim());
         }
-        Map<String, String> creds = Map.of(
-                "accessToken", accessToken.trim(),
-                "privacyLevel", (privacyLevel != null && !privacyLevel.isBlank()) ? privacyLevel.trim() : "PUBLIC_TO_EVERYONE"
-        );
+        creds.put("privacyLevel", (privacyLevel != null && !privacyLevel.isBlank()) ? privacyLevel.trim() : "PUBLIC_TO_EVERYONE");
+        if (refreshToken != null && !refreshToken.isBlank()) {
+            creds.put("refreshToken", refreshToken.trim());
+        }
+        if (clientKey != null && !clientKey.isBlank()) {
+            creds.put("clientKey", clientKey.trim());
+        }
+        if (clientSecret != null && !clientSecret.isBlank()) {
+            creds.put("clientSecret", clientSecret.trim());
+        }
+        if (creds.isEmpty() || (!creds.containsKey("accessToken") && !creds.containsKey("refreshToken"))) {
+            throw new IllegalArgumentException("TikTok access token ou refresh token deve ser fornecido.");
+        }
         credentialStore.saveCredentials(profile, Platform.TIKTOK, creds);
         log.info("TikTok autenticado com sucesso para o perfil '{}'.", profile);
     }
@@ -55,6 +69,32 @@ public class AuthService {
         );
         credentialStore.saveCredentials(profile, Platform.KWAI, creds);
         log.info("Kwai autenticado com sucesso para o perfil '{}'.", profile);
+    }
+
+    public void authenticateYouTube(String profile, String accessToken) {
+        authenticateYouTube(profile, accessToken, null, null, null);
+    }
+
+    public void authenticateYouTube(String profile, String accessToken, String refreshToken, String clientId, String clientSecret) {
+        java.util.Map<String, String> creds = new java.util.HashMap<>();
+        if (accessToken != null && !accessToken.isBlank()) {
+            creds.put("accessToken", accessToken.replaceAll("\\s+", "").trim());
+        }
+        creds.put("privacyStatus", "public");
+        if (refreshToken != null && !refreshToken.isBlank()) {
+            creds.put("refreshToken", refreshToken.trim());
+        }
+        if (clientId != null && !clientId.isBlank()) {
+            creds.put("clientId", clientId.trim());
+        }
+        if (clientSecret != null && !clientSecret.isBlank()) {
+            creds.put("clientSecret", clientSecret.trim());
+        }
+        if (creds.isEmpty() || (!creds.containsKey("accessToken") && !creds.containsKey("refreshToken"))) {
+            throw new IllegalArgumentException("YouTube access token ou refresh token deve ser fornecido.");
+        }
+        credentialStore.saveCredentials(profile, Platform.YOUTUBE_SHORTS, creds);
+        log.info("YouTube autenticado com sucesso para o perfil '{}'.", profile);
     }
 
     public boolean isPlatformAuthenticated(String profile, Platform platform) {

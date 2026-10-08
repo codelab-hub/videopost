@@ -48,8 +48,15 @@ O projeto adota os princípios de **Clean Architecture** e **Ports and Adapters 
 videopost/
 ├── pom.xml
 ├── README.md
-├── videopost                    <-- Script runner executável
-├── mvnw                         <-- Maven wrapper embutido
+├── MANUAL_VIDEOPOST_YOUTUBE_TIKTOK.pdf   <-- Manual ilustrado em PDF (A4)
+├── videopost                             <-- Runner do daemon Java (YouTube Shorts & APIs)
+├── tiktok                                <-- Runner do microsserviço TikTok Studio
+├── tiktok-service/                       <-- Microsserviço Playwright isolado para TikTok Web
+│   ├── config.example.yml
+│   ├── main.py
+│   ├── uploader.py
+│   ├── scheduler.py
+│   └── db.py
 ├── src/
 │   ├── main/
 │   │   ├── java/com/videopost/
@@ -59,8 +66,8 @@ videopost/
 │   │   │   ├── publisher/               <-- Adapters das plataformas e HTTP
 │   │   │   │   ├── VideoPublisher.java  (Interface obrigatória)
 │   │   │   │   ├── PublisherRegistry.java
-│   │   │   │   ├── UnsupportedPublisher.java
 │   │   │   │   ├── http/                (PlatformHttpClient, HttpResponseData)
+│   │   │   │   ├── youtube/             (YouTubeShortsPublisher, YouTubeConfig)
 │   │   │   │   ├── tiktok/              (TikTokPublisher, TikTokConfig)
 │   │   │   │   ├── facebook/            (FacebookPublisher, FacebookConfig)
 │   │   │   │   └── kwai/                (KwaiPublisher, KwaiConfig)

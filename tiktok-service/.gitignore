@@ -1,0 +1,8 @@
+.venv/
+browser_profile/
+*.db
+*.log
+logs/
+__pycache__/
+*.pid
+.DS_Store

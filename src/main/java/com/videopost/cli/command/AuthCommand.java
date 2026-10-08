@@ -4,6 +4,7 @@ import com.videopost.application.AppContext;
 import com.videopost.application.service.AuthService;
 import com.videopost.cli.ui.ConsoleUi;
 import com.videopost.domain.model.Platform;
+import com.videopost.infrastructure.security.OAuthLocalServer;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
@@ -18,8 +19,11 @@ import java.util.concurrent.Callable;
 )
 public class AuthCommand implements Callable<Integer> {
 
-    @Parameters(index = "0", description = "Plataforma alvo (tiktok, facebook, kwai)")
+    @Parameters(index = "0", description = "Plataforma alvo (tiktok, facebook, kwai, youtube)")
     private String platformArg;
+
+    @Option(names = {"--browser"}, description = "Inicia fluxo de autorização via navegador local (localhost:8585)")
+    private boolean browser = false;
 
     @Option(names = {"--token"}, description = "Access Token / Bearer Token")
     private String token;
@@ -36,11 +40,20 @@ public class AuthCommand implements Callable<Integer> {
     @Option(names = {"--privacy"}, description = "Nível de privacidade TikTok (PUBLIC_TO_EVERYONE, SELF_ONLY)", defaultValue = "PUBLIC_TO_EVERYONE")
     private String privacyLevel;
 
+    @Option(names = {"--refresh-token"}, description = "OAuth Refresh Token (YouTube/TikTok)")
+    private String refreshToken;
+
+    @Option(names = {"--client-id", "--client-key"}, description = "Google Client ID / TikTok Client Key")
+    private String clientId;
+
+    @Option(names = {"--client-secret"}, description = "Google OAuth / TikTok Client Secret")
+    private String clientSecret;
+
     @Override
     public Integer call() {
         Optional<Platform> platformOpt = Platform.fromString(platformArg);
         if (platformOpt.isEmpty()) {
-            System.err.println(ConsoleUi.cross() + " Plataforma inválida: '" + platformArg + "'. Suportadas: tiktok, facebook, kwai.");
+            System.err.println(ConsoleUi.cross() + " Plataforma inválida: '" + platformArg + "'. Suportadas: tiktok, facebook, kwai, youtube.");
             return 1;
         }
 
@@ -52,6 +65,10 @@ public class AuthCommand implements Callable<Integer> {
         System.out.println(ConsoleUi.bold("🔐 Autenticação: ") + platform.getDisplayName() + " [Perfil: " + ConsoleUi.cyan(activeProfile) + "]");
         System.out.println();
 
+        if (browser) {
+            return executeBrowserFlow(platform, activeProfile, authService);
+        }
+
         Scanner scanner = new Scanner(System.in);
 
         try {
@@ -62,17 +79,17 @@ public class AuthCommand implements Callable<Integer> {
                     System.out.println(" • Direct Post v2 API ativado");
                     System.out.println();
                     String tkn = token;
-                    if (tkn == null || tkn.isBlank()) {
-                        System.out.print("Informe o OAuth User Access Token: ");
+                    if ((tkn == null || tkn.isBlank()) && (refreshToken == null || refreshToken.isBlank())) {
+                        System.out.print("Informe o OAuth User Access Token (ou Refresh Token): ");
                         if (scanner.hasNextLine()) {
                             tkn = scanner.nextLine().trim();
                         }
                     }
-                    if (tkn == null || tkn.isBlank()) {
-                        System.err.println(ConsoleUi.cross() + " Token não fornecido. Autenticação cancelada.");
+                    if ((tkn == null || tkn.isBlank()) && (refreshToken == null || refreshToken.isBlank())) {
+                        System.err.println(ConsoleUi.cross() + " Nenhum token fornecido. Autenticação cancelada.");
                         return 1;
                     }
-                    authService.authenticateTikTok(activeProfile, tkn, privacyLevel);
+                    authService.authenticateTikTok(activeProfile, tkn, privacyLevel, refreshToken, clientId, clientSecret);
                 }
 
                 case FACEBOOK -> {
@@ -127,6 +144,25 @@ public class AuthCommand implements Callable<Integer> {
                     authService.authenticateKwai(activeProfile, aid, tkn);
                 }
 
+                case YOUTUBE_SHORTS -> {
+                    System.out.println("Requisitos Oficiais Google / YouTube Shorts:");
+                    System.out.println(" • Projeto no Google Cloud Console com YouTube Data API v3 ativada");
+                    System.out.println(" • Escopo: https://www.googleapis.com/auth/youtube.upload");
+                    System.out.println();
+                    String tkn = token;
+                    if ((tkn == null || tkn.isBlank()) && (refreshToken == null || refreshToken.isBlank())) {
+                        System.out.print("Informe o Google OAuth Bearer Token (ou Refresh Token): ");
+                        if (scanner.hasNextLine()) {
+                            tkn = scanner.nextLine().trim();
+                        }
+                    }
+                    if ((tkn == null || tkn.isBlank()) && (refreshToken == null || refreshToken.isBlank())) {
+                        System.err.println(ConsoleUi.cross() + " Nenhum token fornecido. Autenticação cancelada.");
+                        return 1;
+                    }
+                    authService.authenticateYouTube(activeProfile, tkn, refreshToken, clientId, clientSecret);
+                }
+
                 default -> {
                     System.err.println(ConsoleUi.cross() + " Autenticação ainda não implementada para " + platform.getDisplayName());
                     return 1;
@@ -139,6 +175,48 @@ public class AuthCommand implements Callable<Integer> {
 
         } catch (Exception e) {
             System.err.println(ConsoleUi.cross() + " Erro ao autenticar: " + e.getMessage());
+            return 1;
+        }
+    }
+
+    private int executeBrowserFlow(Platform platform, String profile, AuthService authService) {
+        System.out.println(ConsoleUi.cyan("🌐 Iniciando servidor local em http://localhost:8585..."));
+        System.out.println("Abrindo navegador padrão para autorização...");
+        System.out.println(ConsoleUi.yellow("Aguardando confirmação no navegador (limite: 3 minutos)..."));
+        System.out.println();
+
+        try {
+            OAuthLocalServer.OAuthCapture capture = OAuthLocalServer.listenForAuth(
+                    platform,
+                    profile,
+                    "http://localhost:8585/callback",
+                    null
+            );
+
+            if (capture.codeOrToken() == null || capture.codeOrToken().isBlank()) {
+                System.err.println(ConsoleUi.cross() + " Nenhuma credencial recebida pelo navegador. Operação abortada.");
+                return 1;
+            }
+
+            if (platform == Platform.FACEBOOK) {
+                String pid = capture.extraId();
+                if (pid == null || pid.isBlank()) {
+                    pid = pageId != null ? pageId : "default_page";
+                }
+                authService.authenticateFacebook(profile, pid, capture.codeOrToken());
+            } else if (platform == Platform.YOUTUBE_SHORTS) {
+                authService.authenticateYouTube(profile, capture.codeOrToken());
+            } else if (platform == Platform.TIKTOK) {
+                authService.authenticateTikTok(profile, capture.codeOrToken(), privacyLevel);
+            } else if (platform == Platform.KWAI) {
+                authService.authenticateKwai(profile, capture.extraId(), capture.codeOrToken());
+            }
+
+            System.out.println(ConsoleUi.checkmark() + " Autorização via navegador recebida com sucesso!");
+            System.out.println(ConsoleUi.checkmark() + " Credenciais criptografadas com AES-256-GCM salvas em .videopost/credentials/" + profile + "/");
+            return 0;
+        } catch (Exception e) {
+            System.err.println(ConsoleUi.cross() + " Falha no fluxo do navegador: " + e.getMessage());
             return 1;
         }
     }

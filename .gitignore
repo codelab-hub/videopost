@@ -1,9 +1,81 @@
-target/
+# ========================================================
+# VideoPost Security & Privacy .gitignore
+# ========================================================
+
+# 1. Credenciais, Tokens, Chaves e Segredos
+credentials/
+.videopost/credentials/
+*.enc
+*.key
+*.pem
+*.crt
+*.p12
+*.token
+*.secret
+.videopost_key
+*client_secret*.json
+google-credentials*.json
+credentials.json
+client_secrets.json
+oauth-*.json
+
+# 2. Dados Locais de Execução e Perfis
 .videopost/
+active_profile
+*.pid
+videopost.pid
+tiktok.pid
+scratch/
+
+# 3. Bancos de Dados SQLite & Filas Locais
 *.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+tiktok_service.db
+videopost.db
+
+# 4. Perfis de Navegador & Sessões (Cookies/Logins)
+browser_profile/
+*/browser_profile/
+test_profile/
+test_clone/
+*browser_profile*
+
+# 5. Logs & Screenshots de Auditoria
 *.log
+*.log.*
+logs/
+*/logs/
+screenshots/
+*/screenshots/
+manual_temp.html
+
+# 6. Ambientes Virtuais Python & Caches
+.venv/
+*/.venv/
+venv/
+env/
+__pycache__/
+*/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# 7. Build Maven & Compilação Java
+target/
+*.class
+*.jar
+*.war
+*.nar
+*.ear
+
+# 8. IDEs & Sistema Operacional
 .DS_Store
+*/.DS_Store
 .idea/
 *.iml
 .vscode/
-credentials/
+Thumbs.db

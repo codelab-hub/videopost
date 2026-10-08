@@ -28,11 +28,21 @@ public class TikTokPublisher implements VideoPublisher {
     private final TikTokConfig config;
     private final PlatformHttpClient httpClient;
     private final ObjectMapper objectMapper;
+    private final com.videopost.infrastructure.security.CredentialStore credentialStore;
+    private final String profileName;
+    private volatile String currentAccessToken;
 
     public TikTokPublisher(TikTokConfig config, PlatformHttpClient httpClient, ObjectMapper objectMapper) {
+        this(config, httpClient, objectMapper, null, null);
+    }
+
+    public TikTokPublisher(TikTokConfig config, PlatformHttpClient httpClient, ObjectMapper objectMapper, com.videopost.infrastructure.security.CredentialStore credentialStore, String profileName) {
         this.config = config;
         this.httpClient = httpClient;
         this.objectMapper = objectMapper;
+        this.credentialStore = credentialStore;
+        this.profileName = profileName;
+        this.currentAccessToken = (config != null) ? config.accessToken() : null;
     }
 
     @Override
@@ -82,12 +92,52 @@ public class TikTokPublisher implements VideoPublisher {
 
             String requestJson = objectMapper.writeValueAsString(requestPayload);
 
+            String token = (currentAccessToken != null && !currentAccessToken.isBlank()) ? currentAccessToken : (config != null ? config.accessToken() : null);
+            if ((token == null || token.isBlank()) && config != null && config.hasRefreshCredentials()) {
+                token = refreshAccessToken();
+            }
+
             Map<String, String> headers = Map.of(
-                    "Authorization", "Bearer " + config.accessToken(),
+                    "Authorization", "Bearer " + (token != null ? token.replaceAll("\\s+", "").trim() : ""),
                     "Content-Type", "application/json; charset=UTF-8"
             );
 
             HttpResponseData initResponse = httpClient.postJson(INIT_URL, headers, requestJson);
+
+            boolean isTokenError = false;
+            if (initResponse.statusCode() == 401) {
+                isTokenError = true;
+            } else if (initResponse.body() != null && initResponse.body().contains("invalid_token")) {
+                isTokenError = true;
+            }
+
+            if (isTokenError && config != null && config.hasRefreshCredentials()) {
+                log.warn("Token do TikTok expirado ou inválido. Renovando automaticamente via Refresh Token...");
+                String refreshed = refreshAccessToken();
+                if (refreshed != null) {
+                    token = refreshed;
+                    headers = Map.of(
+                            "Authorization", "Bearer " + token.replaceAll("\\s+", "").trim(),
+                            "Content-Type", "application/json; charset=UTF-8"
+                    );
+                    initResponse = httpClient.postJson(INIT_URL, headers, requestJson);
+                }
+            }
+
+            if (!initResponse.isSuccessful()) {
+                // Se falhar no Direct Post, tenta o endpoint de Rascunhos/Inbox (video.upload)
+                log.info("Tentando envio via TikTok Inbox / Rascunhos (/v2/post/publish/inbox/video/init/)...");
+                Map<String, Object> inboxPayload = Map.of(
+                        "source_info", Map.of(
+                                "source", "FILE_UPLOAD",
+                                "video_size", fileSize,
+                                "chunk_size", fileSize,
+                                "total_chunk_count", 1
+                        )
+                );
+                String inboxJson = objectMapper.writeValueAsString(inboxPayload);
+                initResponse = httpClient.postJson("https://open.tiktokapis.com/v2/post/publish/inbox/video/init/", headers, inboxJson);
+            }
 
             if (!initResponse.isSuccessful()) {
                 String errorMsg = parseErrorMessage(initResponse);
@@ -100,9 +150,30 @@ public class TikTokPublisher implements VideoPublisher {
             String errorCode = errorNode.path("code").asText("");
 
             if (!"ok".equalsIgnoreCase(errorCode) && !errorCode.isBlank()) {
-                String errorMsg = errorNode.path("message").asText("Erro desconhecido retornado pelo TikTok");
-                log.error("TikTok API retornou erro de negócio code={}: {}", errorCode, errorMsg);
-                return PublishResult.failure("TikTok [" + errorCode + "]: " + errorMsg, !errorCode.contains("invalid_token"));
+                // Tenta fallback para Inbox também caso a resposta de negócio recuse direct post
+                log.info("Direct Post recusado pelo TikTok ({}). Tentando envio para Inbox/Rascunhos...", errorCode);
+                Map<String, Object> inboxPayload = Map.of(
+                        "source_info", Map.of(
+                                "source", "FILE_UPLOAD",
+                                "video_size", fileSize,
+                                "chunk_size", fileSize,
+                                "total_chunk_count", 1
+                        )
+                );
+                String inboxJson = objectMapper.writeValueAsString(inboxPayload);
+                HttpResponseData inboxResp = httpClient.postJson("https://open.tiktokapis.com/v2/post/publish/inbox/video/init/", headers, inboxJson);
+                if (inboxResp.isSuccessful()) {
+                    JsonNode inboxRoot = objectMapper.readTree(inboxResp.body());
+                    if ("ok".equalsIgnoreCase(inboxRoot.path("error").path("code").asText("ok"))) {
+                        root = inboxRoot;
+                        errorCode = "ok";
+                    }
+                }
+                if (!"ok".equalsIgnoreCase(errorCode)) {
+                    String errorMsg = errorNode.path("message").asText("Erro retornado pelo TikTok");
+                    log.error("TikTok API retornou erro de negócio code={}: {}", errorCode, errorMsg);
+                    return PublishResult.failure("TikTok [" + errorCode + "]: " + errorMsg, !errorCode.contains("invalid_token"));
+                }
             }
 
             JsonNode dataNode = root.path("data");
@@ -153,5 +224,53 @@ public class TikTokPublisher implements VideoPublisher {
 
     private boolean isRetryableStatus(int statusCode) {
         return statusCode == 429 || statusCode >= 500;
+    }
+
+    public synchronized String refreshAccessToken() {
+        if (config == null || !config.hasRefreshCredentials()) {
+            return null;
+        }
+        try {
+            log.info("Renovando Access Token do TikTok via Refresh Token...");
+            String form = "client_key=" + java.net.URLEncoder.encode(config.clientKey(), java.nio.charset.StandardCharsets.UTF_8)
+                    + "&client_secret=" + java.net.URLEncoder.encode(config.clientSecret(), java.nio.charset.StandardCharsets.UTF_8)
+                    + "&refresh_token=" + java.net.URLEncoder.encode(config.refreshToken(), java.nio.charset.StandardCharsets.UTF_8)
+                    + "&grant_type=refresh_token";
+
+            java.net.http.HttpClient client = java.net.http.HttpClient.newBuilder()
+                    .connectTimeout(java.time.Duration.ofSeconds(15))
+                    .build();
+            java.net.http.HttpRequest request = java.net.http.HttpRequest.newBuilder()
+                    .uri(java.net.URI.create("https://open.tiktokapis.com/v2/oauth/token/"))
+                    .header("Content-Type", "application/x-www-form-urlencoded")
+                    .POST(java.net.http.HttpRequest.BodyPublishers.ofString(form))
+                    .build();
+
+            java.net.http.HttpResponse<String> resp = client.send(request, java.net.http.HttpResponse.BodyHandlers.ofString(java.nio.charset.StandardCharsets.UTF_8));
+            if (resp.statusCode() == 200) {
+                JsonNode root = objectMapper.readTree(resp.body());
+                JsonNode data = root.path("data");
+                String newToken = data.path("access_token").asText();
+                String newRefreshToken = data.path("refresh_token").asText();
+                if (!newToken.isBlank()) {
+                    this.currentAccessToken = newToken;
+                    log.info("Access Token do TikTok renovado com sucesso!");
+                    if (credentialStore != null && profileName != null) {
+                        Map<String, String> creds = new HashMap<>(credentialStore.getCredentials(profileName, Platform.TIKTOK).orElse(Map.of()));
+                        creds.put("accessToken", newToken);
+                        if (!newRefreshToken.isBlank()) {
+                            creds.put("refreshToken", newRefreshToken);
+                        }
+                        credentialStore.saveCredentials(profileName, Platform.TIKTOK, creds);
+                    }
+                    return newToken;
+                }
+            } else {
+                log.warn("Falha ao renovar token OAuth do TikTok (HTTP {}): {}", resp.statusCode(), resp.body());
+            }
+        } catch (Exception e) {
+            log.error("Erro inesperado ao renovar token OAuth do TikTok: {}", e.getMessage(), e);
+        }
+        return null;
     }
 }

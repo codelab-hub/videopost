@@ -1,0 +1,22 @@
+videos:
+  directory: "./videos"
+
+schedule:
+  interval: "3h"
+  working_hours:
+    enabled: false
+    start: "13:00"
+    end: "23:00"
+
+browser:
+  headless: false
+  channel: "chrome"
+  profile_dir: "./browser_profile"
+  timeout_ms: 60000
+
+database:
+  path: "./tiktok_service.db"
+
+logging:
+  file: "./logs/tiktok.log"
+  pid_file: "./tiktok.pid"

@@ -89,8 +89,24 @@ public class AppContext {
         }
         this.config = loadedConfig;
 
-        // Persistência SQLite
-        Path dbPath = rootDir.resolve("videopost.db");
+        // Serviços e Perfil
+        this.profileService = new ProfileService(rootDir, configLoader);
+        String activeProfile = profileService.getActiveProfile();
+
+        Path profileDir = rootDir.resolve("profiles").resolve(activeProfile);
+        try {
+            Files.createDirectories(profileDir);
+        } catch (IOException ignored) {}
+
+        // Persistência SQLite isolada por perfil
+        Path profileDbPath = profileDir.resolve("videopost.db");
+        Path rootDbPath = rootDir.resolve("videopost.db");
+        Path dbPath = profileDbPath;
+        if (!Files.exists(profileDbPath) && Files.exists(rootDbPath) && "frutinhas".equalsIgnoreCase(activeProfile)) {
+            try {
+                Files.copy(rootDbPath, profileDbPath);
+            } catch (IOException ignored) {}
+        }
         this.dbManager = new DatabaseConnectionManager(dbPath);
         this.videoRepository = new SqliteVideoRepository(dbManager, objectMapper);
         this.publicationRepository = new SqlitePublicationRepository(dbManager);
@@ -103,8 +119,6 @@ public class AppContext {
         this.httpClient = new JdkPlatformHttpClient();
         this.publisherRegistry = new PublisherRegistry();
 
-        // Serviços
-        this.profileService = new ProfileService(rootDir, configLoader);
         this.authService = new AuthService(credentialStore);
 
         // Registra adaptadores de plataforma para o perfil ativo
@@ -131,13 +145,17 @@ public class AppContext {
         Optional<Map<String, String>> tiktokCreds = credentialStore.getCredentials(activeProfile, Platform.TIKTOK);
         TikTokConfig tiktokConfig = null;
         if (tiktokCreds.isPresent()) {
+            Map<String, String> creds = tiktokCreds.get();
             tiktokConfig = new TikTokConfig(
-                    tiktokCreds.get().get("accessToken"),
-                    tiktokCreds.get().get("privacyLevel"),
-                    false, false, false
+                    creds.get("accessToken"),
+                    creds.getOrDefault("privacyLevel", "PUBLIC_TO_EVERYONE"),
+                    false, false, false,
+                    creds.get("refreshToken"),
+                    creds.get("clientKey"),
+                    creds.get("clientSecret")
             );
         }
-        publisherRegistry.register(new TikTokPublisher(tiktokConfig, httpClient, objectMapper));
+        publisherRegistry.register(new TikTokPublisher(tiktokConfig, httpClient, objectMapper, credentialStore, activeProfile));
 
         // 2. Facebook Publisher
         Optional<Map<String, String>> fbCreds = credentialStore.getCredentials(activeProfile, Platform.FACEBOOK);
@@ -161,6 +179,21 @@ public class AppContext {
             );
         }
         publisherRegistry.register(new KwaiPublisher(kwaiConfig, httpClient, objectMapper));
+
+        // 4. YouTube Shorts Publisher
+        Optional<Map<String, String>> ytCreds = credentialStore.getCredentials(activeProfile, Platform.YOUTUBE_SHORTS);
+        com.videopost.publisher.youtube.YouTubeConfig ytConfig = null;
+        if (ytCreds.isPresent()) {
+            Map<String, String> creds = ytCreds.get();
+            ytConfig = new com.videopost.publisher.youtube.YouTubeConfig(
+                    creds.get("accessToken"),
+                    creds.getOrDefault("privacyStatus", "public"),
+                    creds.get("refreshToken"),
+                    creds.get("clientId"),
+                    creds.get("clientSecret")
+            );
+        }
+        publisherRegistry.register(new com.videopost.publisher.youtube.YouTubeShortsPublisher(ytConfig, httpClient, objectMapper, credentialStore, activeProfile));
     }
 
     public Path getRootDir() {

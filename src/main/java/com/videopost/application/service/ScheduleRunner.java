@@ -142,11 +142,11 @@ public class ScheduleRunner {
                 break;
             }
 
-            // Aguarda o intervalo antes do próximo ciclo
-            if (waitForNextCheck(interval)) break;
-
             // Escaneia novamente para detectar novos vídeos na pasta
             scanService.scanAndEnqueue(videosDir, interval);
+
+            // Aguarda brevemente antes de avaliar o próximo vídeo agendado na fila
+            if (waitForNextCheck(Duration.ofSeconds(5))) break;
         }
 
         listener.onStopped();

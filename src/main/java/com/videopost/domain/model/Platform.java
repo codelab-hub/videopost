@@ -28,6 +28,9 @@ public enum Platform {
             return Optional.empty();
         }
         String clean = value.trim().toUpperCase().replace("-", "_").replace(" ", "_");
+        if ("GOOGLE".equals(clean) || "YOUTUBE".equals(clean)) {
+            return Optional.of(YOUTUBE_SHORTS);
+        }
         return Arrays.stream(values())
                 .filter(p -> p.name().equalsIgnoreCase(clean) || p.displayName.equalsIgnoreCase(value.trim()))
                 .findFirst();

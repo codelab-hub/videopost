@@ -41,6 +41,7 @@ public class ScanService {
         List<VideoFileScanner.ScannedVideo> scanned = scanner.scanDirectory(videosDirectory);
 
         int newlyAdded = 0;
+        int updated = 0;
         for (VideoFileScanner.ScannedVideo item : scanned) {
             Optional<Video> existing = videoRepository.findByFilename(item.filename());
             if (existing.isEmpty()) {
@@ -48,6 +49,20 @@ public class ScanService {
                 videoRepository.save(newVideo);
                 newlyAdded++;
                 log.info("Novo vídeo detectado e adicionado à fila: {}", item.filename());
+            } else if (item.metadata() != null) {
+                Video v = existing.get();
+                if (v.getStatus() != VideoStatus.COMPLETED) {
+                    boolean needsUpdate = (v.getCaption() == null || v.getCaption().isBlank())
+                            || !java.util.Objects.equals(v.getCaption(), item.metadata().caption())
+                            || !java.util.Objects.equals(v.getHashtags(), item.metadata().hashtags());
+                    if (needsUpdate) {
+                        v.setCaption(item.metadata().caption());
+                        v.setHashtags(item.metadata().hashtags());
+                        videoRepository.update(v);
+                        updated++;
+                        log.info("Metadados atualizados para vídeo na fila: {}", item.filename());
+                    }
+                }
             }
         }
 
