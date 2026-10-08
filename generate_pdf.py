@@ -11,10 +11,10 @@ html_content = """<!DOCTYPE html>
 
   @page {
     size: A4;
-    margin: 16mm 14mm 16mm 14mm;
+    margin: 14mm 14mm 16mm 14mm;
     @bottom-right {
       content: counter(page);
-      font-size: 9pt;
+      font-size: 8.5pt;
       font-family: 'Plus Jakarta Sans', sans-serif;
       color: #94a3b8;
     }
@@ -30,113 +30,115 @@ html_content = """<!DOCTYPE html>
     font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     color: #1e293b;
     background: #ffffff;
-    font-size: 10pt;
-    line-height: 1.55;
+    font-size: 9.5pt;
+    line-height: 1.5;
   }
 
   .header {
     background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%);
     color: #ffffff;
-    padding: 24px 28px;
+    padding: 20px 24px;
     border-radius: 12px;
-    margin-bottom: 22px;
+    margin-bottom: 18px;
     box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.2);
   }
 
   .header-badges {
     display: flex;
     gap: 8px;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
   }
 
   .badge {
-    font-size: 8pt;
+    font-size: 7.5pt;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    padding: 4px 10px;
+    padding: 3px 8px;
     border-radius: 9999px;
   }
 
   .badge-yt { background: #ef4444; color: #fff; }
   .badge-tt { background: #06b6d4; color: #fff; }
   .badge-auto { background: #10b981; color: #fff; }
+  .badge-gh { background: #6366f1; color: #fff; }
 
   .header h1 {
-    font-size: 20pt;
+    font-size: 18pt;
     font-weight: 800;
     letter-spacing: -0.5px;
     line-height: 1.2;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
   }
 
   .header p {
-    font-size: 10.5pt;
+    font-size: 10pt;
     color: #cbd5e1;
-    max-width: 650px;
+    max-width: 680px;
   }
 
   .meta-bar {
-    margin-top: 14px;
-    padding-top: 12px;
+    margin-top: 12px;
+    padding-top: 10px;
     border-top: 1px solid rgba(255, 255, 255, 0.15);
     display: flex;
     justify-content: space-between;
-    font-size: 8.5pt;
+    font-size: 8pt;
     color: #94a3b8;
+    flex-wrap: wrap;
+    gap: 8px;
   }
 
+  .meta-bar strong { color: #f8fafc; }
+
   h2 {
-    font-size: 13pt;
+    font-size: 12pt;
     font-weight: 700;
     color: #0f172a;
-    margin: 22px 0 10px 0;
+    margin: 18px 0 8px 0;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     border-bottom: 2px solid #e2e8f0;
-    padding-bottom: 6px;
+    padding-bottom: 4px;
     page-break-after: avoid;
   }
 
   h3 {
-    font-size: 11pt;
+    font-size: 10pt;
     font-weight: 600;
     color: #1e293b;
-    margin: 14px 0 8px 0;
+    margin: 12px 0 6px 0;
     page-break-after: avoid;
   }
 
-  p { margin-bottom: 8px; }
+  p { margin-bottom: 6px; }
 
   .grid-2 {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 14px;
-    margin: 12px 0;
+    gap: 12px;
+    margin: 10px 0;
   }
 
   .card {
     background: #f8fafc;
     border: 1px solid #e2e8f0;
-    border-radius: 10px;
-    padding: 14px 16px;
+    border-radius: 8px;
+    padding: 12px 14px;
     page-break-inside: avoid;
   }
 
-  .card-yt {
-    border-left: 4px solid #ef4444;
-  }
-
-  .card-tt {
-    border-left: 4px solid #06b6d4;
-  }
+  .card-yt { border-left: 4px solid #ef4444; }
+  .card-tt { border-left: 4px solid #06b6d4; }
+  .card-strategy { border-left: 4px solid #8b5cf6; }
 
   .card-title {
     font-weight: 700;
-    font-size: 10.5pt;
+    font-size: 10pt;
     color: #0f172a;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
     display: flex;
     align-items: center;
     gap: 6px;
@@ -145,26 +147,26 @@ html_content = """<!DOCTYPE html>
   .step-box {
     background: #ffffff;
     border: 1px solid #e2e8f0;
-    border-radius: 10px;
-    padding: 12px 14px;
-    margin-bottom: 10px;
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
     page-break-inside: avoid;
   }
 
   .step-header {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 6px;
+    gap: 8px;
+    margin-bottom: 4px;
   }
 
   .step-num {
-    width: 24px;
-    height: 24px;
+    width: 22px;
+    height: 22px;
     border-radius: 50%;
     background: #4f46e5;
     color: #fff;
-    font-size: 9pt;
+    font-size: 8.5pt;
     font-weight: 700;
     display: flex;
     align-items: center;
@@ -177,7 +179,7 @@ html_content = """<!DOCTYPE html>
 
   .step-title {
     font-weight: 700;
-    font-size: 10pt;
+    font-size: 9.5pt;
     color: #0f172a;
   }
 
@@ -188,20 +190,19 @@ html_content = """<!DOCTYPE html>
   code {
     background: #f1f5f9;
     color: #0f172a;
-    padding: 2px 5px;
+    padding: 2px 4px;
     border-radius: 4px;
-    font-size: 8.5pt;
+    font-size: 8pt;
   }
 
   pre {
     background: #0f172a;
     color: #e2e8f0;
-    padding: 10px 14px;
-    border-radius: 8px;
-    font-size: 8.5pt;
-    line-height: 1.45;
-    margin: 8px 0;
-    overflow-x: auto;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 8pt;
+    line-height: 1.4;
+    margin: 6px 0;
     page-break-inside: avoid;
   }
 
@@ -212,26 +213,26 @@ html_content = """<!DOCTYPE html>
   }
 
   .table-container {
-    margin: 12px 0;
+    margin: 10px 0;
     page-break-inside: avoid;
   }
 
   table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 8.5pt;
+    font-size: 8pt;
   }
 
   th {
     background: #0f172a;
     color: #ffffff;
     text-align: left;
-    padding: 8px 10px;
+    padding: 7px 9px;
     font-weight: 600;
   }
 
   td {
-    padding: 8px 10px;
+    padding: 6px 9px;
     border-bottom: 1px solid #e2e8f0;
     vertical-align: top;
   }
@@ -243,10 +244,10 @@ html_content = """<!DOCTYPE html>
   .callout {
     background: #eff6ff;
     border-left: 4px solid #3b82f6;
-    padding: 10px 14px;
-    border-radius: 0 8px 8px 0;
-    font-size: 9pt;
-    margin: 12px 0;
+    padding: 8px 12px;
+    border-radius: 0 6px 6px 0;
+    font-size: 8.5pt;
+    margin: 8px 0;
     page-break-inside: avoid;
   }
 
@@ -262,88 +263,82 @@ html_content = """<!DOCTYPE html>
     color: #14532d;
   }
 
-  .page-break {
-    page-break-before: always;
+  .callout-purple {
+    background: #faf5ff;
+    border-left-color: #a855f7;
+    color: #581c87;
   }
 
-  .folder-tree {
-    background: #1e293b;
-    color: #cbd5e1;
-    padding: 10px 14px;
-    border-radius: 8px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 8pt;
-    line-height: 1.5;
-    margin: 8px 0;
+  .page-break {
+    page-break-before: always;
   }
 </style>
 </head>
 <body>
 
-  <!-- CAPA / CABEÇALHO -->
+  <!-- ==================== PÁGINA 1 ==================== -->
   <div class="header">
     <div class="header-badges">
       <span class="badge badge-yt">YouTube Shorts</span>
-      <span class="badge badge-tt">TikTok</span>
+      <span class="badge badge-tt">TikTok Studio</span>
       <span class="badge badge-auto">Automação 100% Autônoma</span>
+      <span class="badge badge-gh">Open Source / GitHub</span>
     </div>
-    <h1>VideoPost — Manual de Operação & Automação</h1>
-    <p>Guia prático passo a passo para publicação e agendamento autônomo de vídeos no YouTube Shorts e TikTok.</p>
+    <h1>VideoPost — Manual de Operação & Crescimento</h1>
+    <p>Guia completo de arquitetura, comandos operacionais e estratégias de retenção, hashtags e horários no YouTube Shorts e TikTok.</p>
     <div class="meta-bar">
-      <span>Canal / Perfil: <strong>Notícia Brasil</strong></span>
-      <span>Intervalo Padrão: <strong>3 horas</strong></span>
-      <span>Ambiente: <strong>macOS Apple Silicon</strong></span>
-      <span>Versão: <strong>2.0 Modular</strong></span>
+      <span>GitHub Oficial: <strong>github.com/codelab-hub/videopost</strong></span>
+      <span>Canal YouTube: <strong>youtube.com/@NotíciaBrasil-o1p</strong></span>
+      <span>TikTok Studio: <strong>tiktok.com/tiktokstudio</strong></span>
+      <span>Versão: <strong>2.0 Modular (Atualizado)</strong></span>
     </div>
   </div>
 
-  <!-- VISÃO GERAL -->
-  <h2>📌 1. Visão Geral da Arquitetura</h2>
+  <h2>📌 1. Visão Geral da Arquitetura Modular</h2>
   <p>
-    O sistema foi desenhado em <strong>dois microsserviços completamente independentes e isolados</strong>. Isso garante estabilidade máxima: se uma plataforma precisar de ajuste ou autenticação, a outra continua publicando no ar sem qualquer interrupção.
+    O sistema foi desenhado em <strong>dois microsserviços completamente independentes e isolados</strong> para garantir alta resiliência e estabilidade: se uma plataforma exigir reautenticação ou manutenção, a outra segue publicando normalmente no feed público.
   </p>
 
   <div class="grid-2">
     <div class="card card-yt">
       <div class="card-title">🔴 YouTube Shorts (Java Daemon)</div>
-      <p style="font-size: 8.5pt; color: #475569; margin-bottom: 6px;">
+      <p style="font-size: 8pt; color: #475569; margin-bottom: 4px;">
         Opera via <strong>API Oficial do YouTube (OAuth2 + Google Resumable Upload)</strong> em segundo plano.
       </p>
-      <ul style="font-size: 8.5pt; color: #334155; padding-left: 16px;">
-        <li>Publica direto no canal público.</li>
-        <li>Renovação de tokens OAuth automática.</li>
-        <li>Auto-recuperação contra expiração de sessão HTTP 410.</li>
+      <ul style="font-size: 8pt; color: #334155; padding-left: 14px;">
+        <li>Publica direto no canal oficial Notícia Brasil.</li>
+        <li>Renovação transparente de access tokens OAuth.</li>
+        <li>Auto-retry contra expiração de sessão HTTP 410.</li>
         <li>Comando raiz: <code>./videopost</code></li>
       </ul>
     </div>
 
     <div class="card card-tt">
       <div class="card-title">🔵 TikTok (Microsserviço Web Studio)</div>
-      <p style="font-size: 8.5pt; color: #475569; margin-bottom: 6px;">
+      <p style="font-size: 8pt; color: #475569; margin-bottom: 4px;">
         Opera via <strong>Playwright + Chrome nativo</strong> direto no TikTok Studio Web.
       </p>
-      <ul style="font-size: 8.5pt; color: #334155; padding-left: 16px;">
+      <ul style="font-size: 8pt; color: #334155; padding-left: 14px;">
         <li>Publica direto no feed público (sem limites de Sandbox).</li>
         <li>Perfil do Chrome persistente (login feito apenas uma vez).</li>
-        <li>Grava prints automáticos de auditoria de cada post.</li>
+        <li>Grava prints automáticos de auditoria de cada publicação.</li>
         <li>Comando raiz: <code>./tiktok</code></li>
       </ul>
     </div>
   </div>
 
-  <!-- DIRETÓRIO E METADADOS -->
   <h2>📂 2. Estrutura de Pastas e Metadados</h2>
-  <p>Ambos os serviços consomem os vídeos e metadados da mesma pasta local:</p>
+  <p>Ambos os serviços consomem os vídeos e metadados da pasta local segura:</p>
   <pre><code>/Users/ludmilamoreira/Desktop/frutinhas do brasil/videos curtos campanha.nosync/</code></pre>
 
   <p>
-    Cada vídeo (<code>.mp4</code> ou <code>.mov</code>) possui um arquivo <code>.json</code> correspondente com mesmo nome contendo a legenda e as hashtags:
+    Cada vídeo (<code>.mp4</code> ou <code>.mov</code>) possui um arquivo <code>.json</code> correspondente com mesmo nome contendo a legenda base e as hashtags:
   </p>
 
   <div class="step-box">
     <div class="step-header">
       <span class="step-num">📄</span>
-      <span class="step-title">Exemplo de arquivo de metadados (ex: 1791369200733.json)</span>
+      <span class="step-title">Exemplo de arquivo de metadados companion (ex: 1791369200733.json)</span>
     </div>
     <pre><code>{
   "caption": "Debates que movimentam as redes sociais no Brasil 💬",
@@ -355,15 +350,97 @@ html_content = """<!DOCTYPE html>
     "#cotidiano"
   ]
 }</code></pre>
-    <p style="font-size: 8.5pt; color: #475569; margin-top: 6px;">
-      💡 <em>O sistema adiciona automaticamente <code>#Shorts</code> para o YouTube e <code>#tiktok #fyp</code> para o TikTok, mantendo as legendas limpas e com alto alcance.</em>
+    <p style="font-size: 8pt; color: #475569; margin-top: 4px;">
+      💡 <em>O VideoPost injeta dinamicamente <code>#Shorts</code> para o YouTube e <code>#tiktok #fyp</code> para o TikTok, preservando a identidade visual limpa e ampliando a descoberta algorítmica.</em>
     </p>
   </div>
 
-  <!-- PARTE 1: YOUTUBE SHORTS -->
-  <h2>🔴 3. Passo a Passo: YouTube Shorts</h2>
+  <div class="page-break"></div>
+
+  <!-- ==================== PÁGINA 2 ==================== -->
+  <h2>🚀 3. Estratégia de Crescimento Orgânico & Viralização</h2>
   <p>
-    O serviço do YouTube Shorts roda como um daemon Java em segundo plano. Ele gerencia fila, controle de tentativas e agendamento a cada 3 horas.
+    O algoritmo do TikTok e do YouTube Shorts em 2026 prioriza **velocidade de retenção inicial** (os primeiros 3 segundos) e **comentários espontâneos**. Aplicamos três pilares fundamentais de engajamento:
+  </p>
+
+  <div class="card card-strategy" style="margin-bottom: 10px;">
+    <div class="card-title">✍️ A Técnica das 3 Linhas para Legendas Magnéticas</div>
+    <p style="font-size: 8pt; color: #334155;">
+      A legenda não deve ser descritiva; ela deve forçar a pessoa a <strong>abrir os comentários enquanto o vídeo continua rodando em segundo plano</strong> (dobrando o tempo de retenção!):
+    </p>
+    <ul style="font-size: 8pt; color: #334155; padding-left: 14px; margin-top: 4px;">
+      <li><strong>Linha 1 (Loop de Curiosidade / Gancho Aberto):</strong> "O detalhe no final que quase ninguém percebeu..." ou "O que você faria nessa situação? 👀"</li>
+      <li><strong>Linha 2 (Micro-CTA de Debate):</strong> "Você concorda ou acha que passou do ponto? Deixa sua opinião sincera 👇"</li>
+      <li><strong>Linha 3 (SEO Keywords embutidas):</strong> Termos de pesquisa orgânica (ex: "bastidores da tv", "escala 6x1", "humor brasil").</li>
+    </ul>
+  </div>
+
+  <div class="card card-strategy" style="margin-bottom: 10px;">
+    <div class="card-title">🏷️ O Framework 3-2-1 de Hashtags Relevantes</div>
+    <p style="font-size: 8pt; color: #334155;">
+      Evite o excesso de 20 hashtags genéricas. Use entre <strong>5 a 6 hashtags focadas em indexação semântica</strong>:
+    </p>
+    <div style="font-size: 8pt; color: #1e293b; margin-top: 4px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+      <div style="background:#f1f5f9; padding:6px 10px; border-radius:6px;">
+        <strong>2 a 3 Tags de Nicho / Assunto:</strong><br>
+        <code>#bastidorestv</code> <code>#fofocas</code> <code>#escala6x1</code> <code>#clt</code>
+      </div>
+      <div style="background:#f1f5f9; padding:6px 10px; border-radius:6px;">
+        <strong>1 a 2 Tags de Formato / Comunidade:</strong><br>
+        <code>#entretenimento</code> <code>#humorbr</code> <code>#noticias</code>
+      </div>
+    </div>
+  </div>
+
+  <div class="card card-strategy">
+    <div class="card-title">⏰ As 4 Janelas de Ouro de Horários no Brasil (Sem postar de madrugada!)</div>
+    <p style="font-size: 8pt; color: #334155; margin-bottom: 6px;">
+      Postar de madrugada (02h às 05h) "mata" o alcance do vídeo porque não há velocidade de visualizações nas primeiras horas. Concentre as publicações nos picos de atenção:
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th>Janela</th>
+          <th>Horário (Brasília)</th>
+          <th>Comportamento do Público</th>
+          <th>Tipo de Vídeo Recomendado</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>1. Manhã / Café</strong></td>
+          <td><code>07:30 – 09:00</code></td>
+          <td>Trajeto para o trabalho, primeira checada no celular.</td>
+          <td>Curiosidades rápidas, tecnologia e reflexões leves.</td>
+        </tr>
+        <tr>
+          <td><strong>2. Almoço</strong></td>
+          <td><code>12:00 – 13:30</code></td>
+          <td>Pausa de descanso; alto consumo de entretenimento.</td>
+          <td>Cortes de TV, reality shows (BBB), memes e flagras.</td>
+        </tr>
+        <tr>
+          <td><strong>3. Volta para Casa</strong></td>
+          <td><code>17:30 – 19:00</code></td>
+          <td>Fim de expediente; alta vontade de rir ou desabafar.</td>
+          <td>Humor de trabalho, CLT, convivência e debates sociais.</td>
+        </tr>
+        <tr>
+          <td><strong>4. Horário Nobre</strong></td>
+          <td><code>20:30 – 22:30</code></td>
+          <td>Relaxamento no sofá/cama; <strong>máxima retenção</strong>.</td>
+          <td>Entrevistas marcantes, declarações polêmicas e debates.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- ==================== PÁGINA 3 ==================== -->
+  <h2>🔴 4. Passo a Passo: YouTube Shorts</h2>
+  <p>
+    O serviço do YouTube Shorts roda em segundo plano gerenciando tentativas, token refresh e controle de cotas diárias de upload.
   </p>
 
   <div class="step-box">
@@ -371,10 +448,9 @@ html_content = """<!DOCTYPE html>
       <span class="step-num step-num-yt">1</span>
       <span class="step-title">Verificar o status do YouTube Shorts</span>
     </div>
-    <p>Para ver se o daemon está rodando e quantos vídeos estão na fila:</p>
     <pre><code>./videopost status</code></pre>
-    <p style="font-size: 8.5pt; color: #64748b;">
-      Retorna: perfil ativo, status do YouTube Shorts (✓), total pendente, publicado e falho.
+    <p style="font-size: 8pt; color: #64748b;">
+      Exibe perfil ativo, status do YouTube Shorts (✓), total pendente, publicado e falho.
     </p>
   </div>
 
@@ -383,33 +459,24 @@ html_content = """<!DOCTYPE html>
       <span class="step-num step-num-yt">2</span>
       <span class="step-title">Iniciar o agendador em segundo plano</span>
     </div>
-    <p>Se o serviço estiver parado e você desejar iniciá-lo:</p>
     <pre><code>./videopost start</code></pre>
-    <p style="font-size: 8.5pt; color: #64748b;">
-      O serviço lê a pasta de vídeos, monta a fila no SQLite e programa postagens no intervalo de 3 horas.
+    <p style="font-size: 8pt; color: #64748b;">
+      Lê a pasta de vídeos, monta a fila no SQLite e programa postagens nos intervalos definidos.
     </p>
   </div>
 
   <div class="step-box">
     <div class="step-header">
       <span class="step-num step-num-yt">3</span>
-      <span class="step-title">Parar o agendador</span>
+      <span class="step-title">Parar o agendador & Acompanhar logs ao vivo</span>
     </div>
-    <pre><code>./videopost stop</code></pre>
+    <pre><code>./videopost stop
+tail -f .videopost/videopost.log</code></pre>
   </div>
 
-  <div class="step-box">
-    <div class="step-header">
-      <span class="step-num step-num-yt">4</span>
-      <span class="step-title">Acompanhar logs em tempo real</span>
-    </div>
-    <pre><code>tail -f .videopost/videopost.log</code></pre>
-  </div>
-
-  <!-- PARTE 2: TIKTOK -->
-  <h2>🔵 4. Passo a Passo: TikTok</h2>
+  <h2>🔵 5. Passo a Passo: TikTok</h2>
   <p>
-    O serviço do TikTok foi construído especificamente para contornar as restrições da API Sandbox, postando <strong>diretamente no feed público</strong> via automação web no TikTok Studio.
+    O serviço do TikTok publica <strong>diretamente no feed público</strong> via automação web no TikTok Studio, dispensando intervenção no celular.
   </p>
 
   <div class="step-box">
@@ -417,12 +484,11 @@ html_content = """<!DOCTYPE html>
       <span class="step-num step-num-tt">1</span>
       <span class="step-title">Conexão única de conta (Login Inicial)</span>
     </div>
-    <p>Você só precisa conectar sua conta do TikTok <strong>uma única vez</strong>. Execute:</p>
     <pre><code>./tiktok login</code></pre>
-    <p style="font-size: 8.5pt; color: #334155;">
+    <p style="font-size: 8pt; color: #334155;">
       • Uma janela do Google Chrome será aberta diretamente na sua tela.<br>
-      • Conecte com sua conta do TikTok (você pode escanear o QR Code pelo aplicativo do celular ou usar Google/e-mail).<br>
-      • Assim que você entrar, o sistema salva a sessão de forma permanente em <code>tiktok-service/browser_profile/</code> e fecha a janela.
+      • Conecte com sua conta do TikTok (escaneie o QR Code no app ou use Google/e-mail).<br>
+      • O sistema salva a sessão de forma permanente em <code>tiktok-service/browser_profile/</code> e fecha a janela.
     </p>
   </div>
 
@@ -431,72 +497,51 @@ html_content = """<!DOCTYPE html>
       <span class="step-num step-num-tt">2</span>
       <span class="step-title">Iniciar o robô autônomo do TikTok</span>
     </div>
-    <p>Após logar uma vez, inicie o serviço em segundo plano:</p>
     <pre><code>./tiktok start</code></pre>
-    <p style="font-size: 8.5pt; color: #64748b;">
-      O robô rodará silenciosamente no fundo publicando a cada 3 horas, sem precisar de celular ou intervenção manual.
+    <p style="font-size: 8pt; color: #64748b;">
+      O robô rodará silenciosamente no fundo publicando a cada 3 horas, 100% mãos-livres.
     </p>
   </div>
 
   <div class="step-box">
     <div class="step-header">
       <span class="step-num step-num-tt">3</span>
-      <span class="step-title">Verificar o status e a fila de postagens</span>
+      <span class="step-title">Verificar a fila ou forçar postagem imediata</span>
     </div>
-    <pre><code>./tiktok status
-./tiktok queue</code></pre>
-    <p style="font-size: 8.5pt; color: #64748b;">
-      Mostra a lista completa de vídeos, horários agendados e confirmação de publicações.
+    <pre><code>./tiktok queue
+./tiktok post-next</code></pre>
+    <p style="font-size: 8pt; color: #64748b;">
+      <code>./tiktok post-next</code> publica o próximo vídeo da fila imediatamente sem esperar o cronômetro. Prints salvos em <code>tiktok-service/logs/screenshots/</code>.
     </p>
-  </div>
-
-  <div class="step-box">
-    <div class="step-header">
-      <span class="step-num step-num-tt">4</span>
-      <span class="step-title">Forçar a publicação imediata de um vídeo</span>
-    </div>
-    <p>Se quiser que o próximo vídeo seja postado agora mesmo sem esperar o agendamento de 3 horas:</p>
-    <pre><code>./tiktok post-next</code></pre>
-  </div>
-
-  <div class="step-box">
-    <div class="step-header">
-      <span class="step-num step-num-tt">5</span>
-      <span class="step-title">Auditoria e Prints de confirmação</span>
-    </div>
-    <p>
-      A cada publicação, o TikTok salva automaticamente um print da tela de confirmação em:
-    </p>
-    <pre><code>tiktok-service/logs/screenshots/</code></pre>
   </div>
 
   <div class="page-break"></div>
 
-  <!-- CHEATSHEET / TABELA DE COMANDOS -->
-  <h2>⚡ 5. Tabela Rápida de Comandos (Cheatsheet)</h2>
+  <!-- ==================== PÁGINA 4 ==================== -->
+  <h2>⚡ 6. Tabela Rápida de Comandos (Cheatsheet)</h2>
 
   <div class="table-container">
     <table>
       <thead>
         <tr>
-          <th>Objetivo</th>
-          <th>Comando YouTube Shorts</th>
-          <th>Comando TikTok</th>
+          <th>Ação Desejada</th>
+          <th>YouTube Shorts</th>
+          <th>TikTok</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td><strong>Ver Status do Serviço</strong></td>
+          <td><strong>Ver Status Atual</strong></td>
           <td><code>./videopost status</code></td>
           <td><code>./tiktok status</code></td>
         </tr>
         <tr>
-          <td><strong>Ver Fila de Vídeos</strong></td>
+          <td><strong>Listar Fila de Vídeos</strong></td>
           <td><code>./videopost queue</code></td>
           <td><code>./tiktok queue</code></td>
         </tr>
         <tr>
-          <td><strong>Iniciar Serviço no Fundo</strong></td>
+          <td><strong>Iniciar no Fundo</strong></td>
           <td><code>./videopost start</code></td>
           <td><code>./tiktok start</code></td>
         </tr>
@@ -507,21 +552,21 @@ html_content = """<!DOCTYPE html>
         </tr>
         <tr>
           <td><strong>Postar Imediatamente</strong></td>
-          <td><em>(segue cronograma)</em></td>
+          <td><em>(cronograma automático)</em></td>
           <td><code>./tiktok post-next</code></td>
         </tr>
         <tr>
-          <td><strong>Login / Autenticação</strong></td>
+          <td><strong>Autenticar Conta</strong></td>
           <td><code>./videopost auth noticiabrasil</code></td>
           <td><code>./tiktok login</code></td>
         </tr>
         <tr>
-          <td><strong>Conferir Sessão</strong></td>
+          <td><strong>Checar Sessão</strong></td>
           <td><em>automático via OAuth</em></td>
           <td><code>./tiktok check-auth</code></td>
         </tr>
         <tr>
-          <td><strong>Ver Logs ao Vivo</strong></td>
+          <td><strong>Acompanhar Logs</strong></td>
           <td><code>tail -f .videopost/videopost.log</code></td>
           <td><code>tail -f tiktok-service/logs/tiktok.log</code></td>
         </tr>
@@ -529,34 +574,37 @@ html_content = """<!DOCTYPE html>
     </table>
   </div>
 
-  <!-- DICAS E BOAS PRÁTICAS -->
-  <h2>💡 6. Dicas e Boas Práticas Operacionais</h2>
+  <h2>🛡️ 7. Segurança, Git & Boas Práticas Operacionais</h2>
 
   <div class="callout callout-success">
-    <strong>✅ Como adicionar novos vídeos no futuro:</strong><br>
-    Basta salvar o novo arquivo de vídeo (ex: <code>meu_video.mp4</code>) e o seu respectivo arquivo de texto (<code>meu_video.json</code>) dentro da pasta <code>videos curtos campanha.nosync/</code>. Ambos os serviços detectam arquivos novos automaticamente e adicionam ao final da fila no próximo ciclo!
+    <strong>🔒 Repositório Público Seguro no GitHub:</strong><br>
+    O projeto está hospedado em <strong>github.com/codelab-hub/videopost</strong>. O arquivo <code>.gitignore</code> foi blindado para que nenhuma credencial, token, chave OAuth, sessão de navegador (<code>browser_profile</code>) ou banco de dados SQLite local possa ser commitado.
+  </div>
+
+  <div class="callout callout-purple">
+    <strong>🎬 Como adicionar novos vídeos no futuro:</strong><br>
+    Basta salvar o novo arquivo de vídeo (ex: <code>novo_video.mp4</code>) e o respectivo arquivo de texto (<code>novo_video.json</code>) dentro da pasta <code>videos curtos campanha.nosync/</code>. Ambos os serviços detectam arquivos novos automaticamente no ciclo seguinte!
   </div>
 
   <div class="callout">
-    <strong>☁️ Por que usar a pasta .nosync?</strong><br>
-    O sufixo <code>.nosync</code> impede que o iCloud do macOS transfira os vídeos para a nuvem e deixe apenas atalhos locais. Assim, o sistema sempre tem acesso instantâneo aos arquivos pesados de vídeo.
+    <strong>☁️ Por que a pasta tem sufixo .nosync?</strong><br>
+    O sufixo <code>.nosync</code> impede que o iCloud do macOS transfira os vídeos pesados para a nuvem deixando atalhos vazios, garantindo acesso instantâneo aos binários de vídeo.
   </div>
 
   <div class="callout callout-warn">
-    <strong>⚠️ Se reiniciar o Mac:</strong><br>
-    Caso o seu computador seja reiniciado ou desligado, basta abrir o Terminal na pasta do projeto e subir os dois serviços novamente com:
-    <pre style="margin-top: 6px;"><code>./videopost start && ./tiktok start</code></pre>
+    <strong>⚠️ Se o Mac for reiniciado:</strong><br>
+    Basta abrir o Terminal na pasta do projeto e religar ambos os serviços:
+    <pre style="margin-top: 4px;"><code>./videopost start && ./tiktok start</code></pre>
   </div>
 
-  <div style="margin-top: 30px; padding: 14px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; text-align: center; font-size: 8.5pt; color: #64748b;">
-    Manual gerado automaticamente para o canal <strong>Notícia Brasil</strong> • Outubro de 2026
+  <div style="margin-top: 20px; padding: 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; text-align: center; font-size: 8pt; color: #64748b;">
+    <strong>VideoPost 2.0</strong> • Documentação oficial para <strong>Notícia Brasil</strong> e organização <strong>codelab-hub</strong> • Outubro de 2026
   </div>
 
 </body>
 </html>
 """
 
-# Salva arquivo HTML temporário
 html_path = "/Users/ludmilamoreira/videopost/manual_temp.html"
 pdf_path = "/Users/ludmilamoreira/videopost/MANUAL_VIDEOPOST_YOUTUBE_TIKTOK.pdf"
 
@@ -574,11 +622,11 @@ with sync_playwright() as p:
         path=pdf_path,
         format="A4",
         print_background=True,
-        margin={"top": "15mm", "bottom": "18mm", "left": "14mm", "right": "14mm"}
+        margin={"top": "12mm", "bottom": "15mm", "left": "12mm", "right": "12mm"}
     )
     browser.close()
 
 if os.path.exists(html_path):
     os.remove(html_path)
 
-print(f"✅ PDF gerado com sucesso em: {pdf_path}")
+print(f"✅ PDF atualizado com sucesso em: {pdf_path}")
