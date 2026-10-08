@@ -127,7 +127,7 @@ class GoogleDriveSync:
                 output=str(temp_dir),
                 quiet=False,
                 use_cookies=False,
-                remaining_ok=True
+                resume=True
             )
 
             # Mover arquivos baixados para o diretório final

@@ -23,6 +23,9 @@ oauth-*.json
 *.zip
 .drive_sync_state.json
 temp_gdrive_sync/
+videos/*
+!videos/moranguinha*
+!videos/.gitkeep
 
 # 2. Dados Locais de Execução e Perfis
 .videopost/
