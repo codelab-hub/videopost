@@ -242,15 +242,58 @@ Para autenticar uma plataforma no perfil ativo:
 
 Você pode passar parâmetros diretamente na linha de comando ou responder interativamente no terminal.
 
-### 1. TikTok
-```bash
-./videopost auth tiktok --token SEU_OAUTH_ACCESS_TOKEN --privacy PUBLIC_TO_EVERYONE
-```
-* **Mecanismo Oficial:** TikTok Content Posting API v2 (Direct Post).
-* **Escopo Exigido:** `video.publish`.
-* **Como obter:** Crie um aplicativo no [TikTok for Developers](https://developers.tiktok.com/), habilite o *Content Posting API*, passe pela auditoria para publicações públicas e gere o User Access Token via OAuth 2.0.
+### 1. YouTube Shorts (Google Cloud Console)
+O VideoPost utiliza a **YouTube Data API v3** oficial com fluxo OAuth 2.0 e renovação automática de sessão sem expiração.
 
-### 2. Facebook (Meta Pages)
+#### Onde pegar as credenciais:
+1. Acesse o **Google Cloud Console**: [console.cloud.google.com](https://console.cloud.google.com).
+2. Crie ou selecione seu projeto (ex: `NoticiaBrasil-Auto`).
+3. Vá em **APIs e Serviços > Biblioteca**, pesquise por **YouTube Data API v3** e clique em **Ativar**.
+4. Em **Tela de Consentimento OAuth**:
+   - Tipo de usuário: **Externo**;
+   - Preencha o nome do aplicativo e e-mail de suporte;
+   - Em **Usuários de teste**, adicione o e-mail da conta Google dona do canal no YouTube.
+5. Em **Credenciais > Criar Credenciais > ID do cliente OAuth**:
+   - Tipo de aplicativo: **Aplicativo para Computador (Desktop App)**;
+   - Nome: `VideoPost CLI`.
+6. Copie o **Client ID** (formato: `...apps.googleusercontent.com`) e o **Client Secret**.
+
+#### Onde colocar no projeto:
+Execute na raiz do projeto:
+```bash
+./videopost auth youtube_shorts \
+  --client-id "SEU_CLIENT_ID.apps.googleusercontent.com" \
+  --client-secret "SEU_CLIENT_SECRET"
+```
+*O VideoPost abrirá automaticamente uma janela do navegador no servidor local temporário (`http://localhost:8585/callback`). Assim que você autorizar, as credenciais e o token permanente de refresh serão criptografados em `.videopost/credentials/<perfil>/youtube_shorts.enc`.*
+
+---
+
+### 2. TikTok
+Você possui duas vias de publicação:
+
+#### Opção A — Microsserviço Web Autônomo (Recomendado para Feed Público)
+Não necessita de auditoria corporativa ou credenciais de desenvolvedor. Publica diretamente no TikTok Studio Web via perfil persistente:
+```bash
+./tiktok login
+```
+*Uma janela do Chrome se abrirá. Conecte sua conta do TikTok (via QR Code ou Google). A sessão é salva de forma isolada em `tiktok-service/browser_profile/` e dispensa qualquer interação manual.*
+
+#### Opção B — TikTok Developer Portal (API Sandbox)
+1. Acesse [developers.tiktok.com](https://developers.tiktok.com) e crie um app em *Manage apps*.
+2. Em *Basic settings*, copie a **Client Key** e **Client Secret**.
+3. Cadastre a Redirect URI: `https://httpbin.org/get`.
+4. Adicione os escopos `video.upload` e `user.info.basic`.
+5. Execute no terminal:
+```bash
+./videopost auth tiktok \
+  --client-key "SUA_CLIENT_KEY" \
+  --client-secret "SUA_CLIENT_SECRET"
+```
+
+---
+
+### 3. Facebook (Meta Pages)
 ```bash
 ./videopost auth facebook --page-id 123456789012345 --page-token SEU_PAGE_ACCESS_TOKEN
 ```
@@ -258,7 +301,9 @@ Você pode passar parâmetros diretamente na linha de comando ou responder inter
 * **Permissões Exigidas:** `pages_manage_posts`, `pages_read_engagement`.
 * **Como obter:** Crie um aplicativo no [Meta for Developers](https://developers.facebook.com/), adicione a funcionalidade de Pages e gere um **Page Access Token** permanente via Graph API Explorer ou fluxo OAuth de administrador da página.
 
-### 3. Kwai (Kuaishou Open Platform)
+---
+
+### 4. Kwai (Kuaishou Open Platform)
 ```bash
 ./videopost auth kwai --app-id SEU_APP_ID --token SEU_ACCESS_TOKEN
 ```

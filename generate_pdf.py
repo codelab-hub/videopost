@@ -11,7 +11,7 @@ html_content = """<!DOCTYPE html>
 
   @page {
     size: A4;
-    margin: 14mm 14mm 16mm 14mm;
+    margin: 13mm 13mm 15mm 13mm;
     @bottom-right {
       content: counter(page);
       font-size: 8.5pt;
@@ -30,23 +30,23 @@ html_content = """<!DOCTYPE html>
     font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     color: #1e293b;
     background: #ffffff;
-    font-size: 9.5pt;
-    line-height: 1.5;
+    font-size: 9pt;
+    line-height: 1.48;
   }
 
   .header {
     background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%);
     color: #ffffff;
-    padding: 20px 24px;
-    border-radius: 12px;
-    margin-bottom: 18px;
-    box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.2);
+    padding: 18px 22px;
+    border-radius: 10px;
+    margin-bottom: 16px;
+    box-shadow: 0 8px 20px -4px rgba(15, 23, 42, 0.2);
   }
 
   .header-badges {
     display: flex;
     gap: 8px;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
     flex-wrap: wrap;
   }
 
@@ -65,7 +65,7 @@ html_content = """<!DOCTYPE html>
   .badge-gh { background: #6366f1; color: #fff; }
 
   .header h1 {
-    font-size: 18pt;
+    font-size: 17pt;
     font-weight: 800;
     letter-spacing: -0.5px;
     line-height: 1.2;
@@ -73,30 +73,30 @@ html_content = """<!DOCTYPE html>
   }
 
   .header p {
-    font-size: 10pt;
+    font-size: 9.5pt;
     color: #cbd5e1;
     max-width: 680px;
   }
 
   .meta-bar {
-    margin-top: 12px;
-    padding-top: 10px;
+    margin-top: 10px;
+    padding-top: 8px;
     border-top: 1px solid rgba(255, 255, 255, 0.15);
     display: flex;
     justify-content: space-between;
     font-size: 8pt;
     color: #94a3b8;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 6px;
   }
 
   .meta-bar strong { color: #f8fafc; }
 
   h2 {
-    font-size: 12pt;
+    font-size: 11.5pt;
     font-weight: 700;
     color: #0f172a;
-    margin: 18px 0 8px 0;
+    margin: 16px 0 8px 0;
     display: flex;
     align-items: center;
     gap: 6px;
@@ -106,10 +106,10 @@ html_content = """<!DOCTYPE html>
   }
 
   h3 {
-    font-size: 10pt;
+    font-size: 9.5pt;
     font-weight: 600;
     color: #1e293b;
-    margin: 12px 0 6px 0;
+    margin: 10px 0 4px 0;
     page-break-after: avoid;
   }
 
@@ -118,25 +118,26 @@ html_content = """<!DOCTYPE html>
   .grid-2 {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin: 10px 0;
+    gap: 10px;
+    margin: 8px 0;
   }
 
   .card {
     background: #f8fafc;
     border: 1px solid #e2e8f0;
     border-radius: 8px;
-    padding: 12px 14px;
+    padding: 10px 12px;
     page-break-inside: avoid;
   }
 
   .card-yt { border-left: 4px solid #ef4444; }
   .card-tt { border-left: 4px solid #06b6d4; }
   .card-strategy { border-left: 4px solid #8b5cf6; }
+  .card-creds { border-left: 4px solid #f59e0b; }
 
   .card-title {
     font-weight: 700;
-    font-size: 10pt;
+    font-size: 9.5pt;
     color: #0f172a;
     margin-bottom: 4px;
     display: flex;
@@ -161,12 +162,12 @@ html_content = """<!DOCTYPE html>
   }
 
   .step-num {
-    width: 22px;
-    height: 22px;
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
     background: #4f46e5;
     color: #fff;
-    font-size: 8.5pt;
+    font-size: 8pt;
     font-weight: 700;
     display: flex;
     align-items: center;
@@ -200,9 +201,9 @@ html_content = """<!DOCTYPE html>
     color: #e2e8f0;
     padding: 8px 12px;
     border-radius: 6px;
-    font-size: 8pt;
+    font-size: 7.8pt;
     line-height: 1.4;
-    margin: 6px 0;
+    margin: 5px 0;
     page-break-inside: avoid;
   }
 
@@ -213,7 +214,7 @@ html_content = """<!DOCTYPE html>
   }
 
   .table-container {
-    margin: 10px 0;
+    margin: 8px 0;
     page-break-inside: avoid;
   }
 
@@ -227,12 +228,12 @@ html_content = """<!DOCTYPE html>
     background: #0f172a;
     color: #ffffff;
     text-align: left;
-    padding: 7px 9px;
+    padding: 6px 8px;
     font-weight: 600;
   }
 
   td {
-    padding: 6px 9px;
+    padding: 6px 8px;
     border-bottom: 1px solid #e2e8f0;
     vertical-align: top;
   }
@@ -272,6 +273,10 @@ html_content = """<!DOCTYPE html>
   .page-break {
     page-break-before: always;
   }
+
+  ol, ul {
+    margin-bottom: 6px;
+  }
 </style>
 </head>
 <body>
@@ -285,18 +290,18 @@ html_content = """<!DOCTYPE html>
       <span class="badge badge-gh">Open Source / GitHub</span>
     </div>
     <h1>VideoPost — Manual de Operação & Crescimento</h1>
-    <p>Guia completo de arquitetura, comandos operacionais e estratégias de retenção, hashtags e horários no YouTube Shorts e TikTok.</p>
+    <p>Guia completo de arquitetura, configuração de credenciais, comandos da CLI e estratégias de retenção para YouTube Shorts e TikTok.</p>
     <div class="meta-bar">
       <span>GitHub Oficial: <strong>github.com/codelab-hub/videopost</strong></span>
       <span>Canal YouTube: <strong>youtube.com/@NotíciaBrasil-o1p</strong></span>
       <span>TikTok Studio: <strong>tiktok.com/tiktokstudio</strong></span>
-      <span>Versão: <strong>2.0 Modular (Atualizado)</strong></span>
+      <span>Versão: <strong>2.0 Modular</strong></span>
     </div>
   </div>
 
   <h2>📌 1. Visão Geral da Arquitetura Modular</h2>
   <p>
-    O sistema foi desenhado em <strong>dois microsserviços completamente independentes e isolados</strong> para garantir alta resiliência e estabilidade: se uma plataforma exigir reautenticação ou manutenção, a outra segue publicando normalmente no feed público.
+    O VideoPost foi desenhado em <strong>dois microsserviços completamente independentes e isolados</strong> para garantir resiliência máxima: se uma plataforma exigir manutenção ou reautenticação, a outra continua publicando no ar sem qualquer impacto.
   </p>
 
   <div class="grid-2">
@@ -332,13 +337,13 @@ html_content = """<!DOCTYPE html>
   <pre><code>/Users/ludmilamoreira/Desktop/frutinhas do brasil/videos curtos campanha.nosync/</code></pre>
 
   <p>
-    Cada vídeo (<code>.mp4</code> ou <code>.mov</code>) possui um arquivo <code>.json</code> correspondente com mesmo nome contendo a legenda base e as hashtags:
+    Cada vídeo (<code>.mp4</code> ou <code>.mov</code>) possui um arquivo <code>.json</code> companheiro com o mesmo nome contendo legenda base e hashtags:
   </p>
 
   <div class="step-box">
     <div class="step-header">
       <span class="step-num">📄</span>
-      <span class="step-title">Exemplo de arquivo de metadados companion (ex: 1791369200733.json)</span>
+      <span class="step-title">Exemplo de arquivo de metadados companheiro (ex: 1791369200733.json)</span>
     </div>
     <pre><code>{
   "caption": "Debates que movimentam as redes sociais no Brasil 💬",
@@ -351,14 +356,73 @@ html_content = """<!DOCTYPE html>
   ]
 }</code></pre>
     <p style="font-size: 8pt; color: #475569; margin-top: 4px;">
-      💡 <em>O VideoPost injeta dinamicamente <code>#Shorts</code> para o YouTube e <code>#tiktok #fyp</code> para o TikTok, preservando a identidade visual limpa e ampliando a descoberta algorítmica.</em>
+      💡 <em>O VideoPost injeta dinamicamente <code>#Shorts</code> para o YouTube e <code>#tiktok #fyp</code> para o TikTok, preservando as legendas limpas e maximizando a descoberta algorítmica.</em>
     </p>
   </div>
 
   <div class="page-break"></div>
 
-  <!-- ==================== PÁGINA 2 ==================== -->
-  <h2>🚀 3. Estratégia de Crescimento Orgânico & Viralização</h2>
+  <!-- ==================== PÁGINA 2: CREDENCIAIS ==================== -->
+  <h2>🔑 3. Como Obter e Configurar as Client Credentials</h2>
+  <p>
+    O VideoPost adota padrão de segurança <strong>local-first</strong>: nenhuma senha ou token é enviado para servidores externos. As credenciais são armazenadas criptografadas com <strong>AES-256-GCM</strong> no seu computador.
+  </p>
+
+  <div class="card card-yt" style="margin-bottom: 12px;">
+    <div class="card-title">🔴 YouTube Shorts: Google Cloud Console</div>
+    <p style="font-size: 8pt; color: #334155; margin-bottom: 4px;">
+      <strong>Passo 1 — Onde pegar no Google Cloud:</strong>
+    </p>
+    <ol style="font-size: 8pt; color: #334155; padding-left: 16px; margin-bottom: 6px;">
+      <li>Acesse o <strong>Google Cloud Console</strong>: <code>https://console.cloud.google.com</code></li>
+      <li>Crie ou selecione seu projeto (ex: <em>NoticiaBrasil-Auto</em>).</li>
+      <li>Vá em <strong>APIs e Serviços &gt; Biblioteca</strong>, pesquise por <strong>YouTube Data API v3</strong> e clique em <strong>Ativar</strong>.</li>
+      <li>Em <strong>Tela de Consentimento OAuth</strong>, marque <em>Externo</em>, preencha o nome do app e em <em>Usuários de teste</em> adicione o e-mail Google do seu canal.</li>
+      <li>Em <strong>Credenciais &gt; Criar Credenciais &gt; ID do cliente OAuth</strong>, escolha o tipo <strong>Aplicativo para Computador (Desktop App)</strong>.</li>
+      <li>Copie o <strong>Client ID</strong> (termina em <code>.apps.googleusercontent.com</code>) e o <strong>Client Secret</strong>.</li>
+    </ol>
+    <p style="font-size: 8pt; color: #334155; margin-bottom: 4px;">
+      <strong>Passo 2 — Onde colocar no projeto:</strong> Execute no terminal na raiz do VideoPost:
+    </p>
+    <pre><code>./videopost auth youtube_shorts \
+  --client-id "SEU_CLIENT_ID.apps.googleusercontent.com" \
+  --client-secret "SEU_CLIENT_SECRET"</code></pre>
+    <p style="font-size: 7.5pt; color: #64748b;">
+      O VideoPost abrirá o navegador para consentimento e salvará as credenciais criptografadas em <code>.videopost/credentials/noticiabrasil/youtube_shorts.enc</code>. O token se auto-renova sozinho para sempre.
+    </p>
+  </div>
+
+  <div class="card card-tt">
+    <div class="card-title">🔵 TikTok: Configuração da Conta</div>
+    <p style="font-size: 8pt; color: #334155; margin-bottom: 4px;">
+      <strong>Opção A — Microsserviço Autônomo Web (Recomendado):</strong>
+    </p>
+    <p style="font-size: 8pt; color: #334155;">
+      Não necessita de aprovação burocrática de empresa ou chaves de desenvolvedor. Basta rodar:
+    </p>
+    <pre><code>./tiktok login</code></pre>
+    <p style="font-size: 7.5pt; color: #64748b; margin-bottom: 8px;">
+      Uma janela do Google Chrome se abrirá. Faça login via QR Code ou Google. A sessão é persistida localmente em <code>tiktok-service/browser_profile/</code> e posta direto no feed público.
+    </p>
+
+    <p style="font-size: 8pt; color: #334155; margin-bottom: 4px;">
+      <strong>Opção B — TikTok Developer Portal (API Oficial Sandbox):</strong>
+    </p>
+    <ol style="font-size: 8pt; color: #334155; padding-left: 16px; margin-bottom: 4px;">
+      <li>Acesse <code>https://developers.tiktok.com</code> ➔ <em>Manage apps</em>.</li>
+      <li>Copie a <strong>Client Key</strong> e <strong>Client Secret</strong> em <em>Basic settings</em>.</li>
+      <li>Cadastre a Redirect URI: <code>https://httpbin.org/get</code> (ou seu servidor de callback).</li>
+      <li>Adicione os escopos <code>video.upload</code> e <code>user.info.basic</code>.</li>
+    </ol>
+    <pre><code>./videopost auth tiktok \
+  --client-key "SUA_CLIENT_KEY" \
+  --client-secret "SUA_CLIENT_SECRET"</code></pre>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- ==================== PÁGINA 3 ==================== -->
+  <h2>🚀 4. Estratégia de Crescimento Orgânico & Viralização</h2>
   <p>
     O algoritmo do TikTok e do YouTube Shorts em 2026 prioriza **velocidade de retenção inicial** (os primeiros 3 segundos) e **comentários espontâneos**. Aplicamos três pilares fundamentais de engajamento:
   </p>
@@ -437,8 +501,8 @@ html_content = """<!DOCTYPE html>
 
   <div class="page-break"></div>
 
-  <!-- ==================== PÁGINA 3 ==================== -->
-  <h2>🔴 4. Passo a Passo: YouTube Shorts</h2>
+  <!-- ==================== PÁGINA 4 ==================== -->
+  <h2>🔴 5. Passo a Passo: YouTube Shorts</h2>
   <p>
     O serviço do YouTube Shorts roda em segundo plano gerenciando tentativas, token refresh e controle de cotas diárias de upload.
   </p>
@@ -474,7 +538,7 @@ html_content = """<!DOCTYPE html>
 tail -f .videopost/videopost.log</code></pre>
   </div>
 
-  <h2>🔵 5. Passo a Passo: TikTok</h2>
+  <h2>🔵 6. Passo a Passo: TikTok</h2>
   <p>
     O serviço do TikTok publica <strong>diretamente no feed público</strong> via automação web no TikTok Studio, dispensando intervenção no celular.
   </p>
@@ -517,8 +581,8 @@ tail -f .videopost/videopost.log</code></pre>
 
   <div class="page-break"></div>
 
-  <!-- ==================== PÁGINA 4 ==================== -->
-  <h2>⚡ 6. Tabela Rápida de Comandos (Cheatsheet)</h2>
+  <!-- ==================== PÁGINA 5 ==================== -->
+  <h2>⚡ 7. Tabela Rápida de Comandos (Cheatsheet)</h2>
 
   <div class="table-container">
     <table>
@@ -574,7 +638,7 @@ tail -f .videopost/videopost.log</code></pre>
     </table>
   </div>
 
-  <h2>🛡️ 7. Segurança, Git & Boas Práticas Operacionais</h2>
+  <h2>🛡️ 8. Segurança, Git & Boas Práticas Operacionais</h2>
 
   <div class="callout callout-success">
     <strong>🔒 Repositório Público Seguro no GitHub:</strong><br>
@@ -597,7 +661,7 @@ tail -f .videopost/videopost.log</code></pre>
     <pre style="margin-top: 4px;"><code>./videopost start && ./tiktok start</code></pre>
   </div>
 
-  <div style="margin-top: 20px; padding: 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; text-align: center; font-size: 8pt; color: #64748b;">
+  <div style="margin-top: 18px; padding: 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; text-align: center; font-size: 8pt; color: #64748b;">
     <strong>VideoPost 2.0</strong> • Documentação oficial para <strong>Notícia Brasil</strong> e organização <strong>codelab-hub</strong> • Outubro de 2026
   </div>
 
@@ -622,7 +686,7 @@ with sync_playwright() as p:
         path=pdf_path,
         format="A4",
         print_background=True,
-        margin={"top": "12mm", "bottom": "15mm", "left": "12mm", "right": "12mm"}
+        margin={"top": "12mm", "bottom": "14mm", "left": "12mm", "right": "12mm"}
     )
     browser.close()
 
