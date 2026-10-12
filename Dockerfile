@@ -40,7 +40,6 @@ COPY --from=builder /build/target/videopost-cli-*.jar ./target/videopost-cli-1.0
 # Copiar módulos da aplicação
 COPY cloud ./cloud
 COPY tiktok-service ./tiktok-service
-COPY videos ./videos
 
 # Criar diretórios de trabalho
 RUN mkdir -p /app/videos /app/.videopost/logs /app/tiktok-service/logs && \
