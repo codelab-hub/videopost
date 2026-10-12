@@ -29,6 +29,7 @@ class ConfigTest {
         original.setActiveProfile("frutinhas");
         original.setMaxAttempts(5);
         original.setPlatformEnabled(Platform.KWAI, false);
+        original.setPlatformEnabled(Platform.TIKTOK, true);
 
         configLoader.save(configFile, original);
 
@@ -40,6 +41,7 @@ class ConfigTest {
         assertThat(loaded.getMaxAttempts()).isEqualTo(5);
         assertThat(loaded.isPlatformEnabled(Platform.KWAI)).isFalse();
         assertThat(loaded.isPlatformEnabled(Platform.TIKTOK)).isTrue();
+        assertThat(loaded.isPlatformEnabled(Platform.YOUTUBE_SHORTS)).isTrue();
     }
 
     @Test

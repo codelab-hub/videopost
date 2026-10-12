@@ -21,9 +21,10 @@ public class AppConfig {
     private String activeProfile = "default";
 
     public AppConfig() {
-        platforms.put("tiktok", new PlatformSettings(true));
-        platforms.put("facebook", new PlatformSettings(true));
-        platforms.put("kwai", new PlatformSettings(true));
+        platforms.put("youtube_shorts", new PlatformSettings(true));
+        platforms.put("tiktok", new PlatformSettings(false));
+        platforms.put("facebook", new PlatformSettings(false));
+        platforms.put("kwai", new PlatformSettings(false));
     }
 
     public static class VideosConfig {
@@ -159,6 +160,9 @@ public class AppConfig {
             return false;
         }
         PlatformSettings settings = platforms.get(platform.name().toLowerCase());
+        if (settings == null && platform == Platform.YOUTUBE_SHORTS) {
+            settings = platforms.get("youtube");
+        }
         return settings != null && settings.isEnabled();
     }
 

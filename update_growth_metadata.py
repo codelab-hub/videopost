@@ -90,6 +90,9 @@ if os.path.exists(tiktok_db):
 if os.path.exists(yt_db):
     print("Atualizando banco de dados do YouTube Shorts (videopost.db)...")
     conn = sqlite3.connect(yt_db)
+    # Re-enfileira vídeos que falharam devido a plataformas não autenticadas
+    conn.execute("UPDATE videos SET status = 'SCHEDULED' WHERE status = 'FAILED'")
+    conn.execute("DELETE FROM publications WHERE platform IN ('TIKTOK', 'FACEBOOK', 'KWAI', 'INSTAGRAM')")
     for stem, caption in CUSTOM_CAPTIONS.items():
         fname_mp4 = f"{stem}.mp4"
         fname_mov = f"{stem}.mov"
@@ -97,8 +100,8 @@ if os.path.exists(yt_db):
         conn.execute("""
             UPDATE videos
             SET caption = ?, hashtags = ?
-            WHERE (filename = ? OR filename = ?) AND status = 'SCHEDULED'
+            WHERE (filename = ? OR filename = ?) AND status IN ('SCHEDULED', 'PENDING')
         """, (caption, tags_str, fname_mp4, fname_mov))
     conn.commit()
     conn.close()
-    print("✅ Banco do YouTube Shorts atualizado!")
+    print("✅ Banco do YouTube Shorts atualizado e fila restabelecida!")

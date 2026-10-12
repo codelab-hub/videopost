@@ -18,10 +18,46 @@ mkdir -p "$VIDEOS_DIR"
 mkdir -p .videopost/logs
 mkdir -p tiktok-service/logs
 
+# Garantir config.yml na raiz de .videopost com YouTube Shorts ativo
+if [ ! -f .videopost/config.yml ] || ! grep -q "youtube_shorts" .videopost/config.yml; then
+    echo "⚙️ Gerando .videopost/config.yml otimizado para nuvem..."
+    cat << 'EOF' > .videopost/config.yml
+videos:
+  directory: "/app/videos"
+schedule:
+  interval: "3h"
+  workingHours:
+    enabled: false
+platforms:
+  tiktok:
+    enabled: false
+  kwai:
+    enabled: false
+  facebook:
+    enabled: false
+  youtube_shorts:
+    enabled: true
+maxAttempts: 3
+captionFormat: "{caption}\n\n{hashtags}"
+activeProfile: "noticiabrasil"
+EOF
+fi
+
 # Limpar vídeos dummy de exemplo
 rm -f "$VIDEOS_DIR"/moranguinha* 2>/dev/null || true
-sqlite3 .videopost/profiles/${VIDEOPOST_PROFILE:-noticiabrasil}/videopost.db "DELETE FROM publications WHERE video_id IN (SELECT id FROM videos WHERE filename LIKE 'moranguinha%'); DELETE FROM videos WHERE filename LIKE 'moranguinha%';" 2>/dev/null || true
-sqlite3 .videopost/videopost.db "DELETE FROM publications WHERE video_id IN (SELECT id FROM videos WHERE filename LIKE 'moranguinha%'); DELETE FROM videos WHERE filename LIKE 'moranguinha%';" 2>/dev/null || true
+
+# Limpar publicações espúrias de plataformas não autenticadas e re-enfileirar vídeos que falharam
+echo "🧹 Restaurando fila e expurgando falhas espúrias..."
+for DB_FILE in .videopost/profiles/${VIDEOPOST_PROFILE:-noticiabrasil}/videopost.db .videopost/videopost.db; do
+    if [ -f "$DB_FILE" ]; then
+        sqlite3 "$DB_FILE" "
+            DELETE FROM publications WHERE video_id IN (SELECT id FROM videos WHERE filename LIKE 'moranguinha%');
+            DELETE FROM videos WHERE filename LIKE 'moranguinha%';
+            DELETE FROM publications WHERE platform IN ('TIKTOK', 'FACEBOOK', 'KWAI', 'INSTAGRAM');
+            UPDATE videos SET status = 'SCHEDULED', scheduled_at = datetime('now', '-1 minute') WHERE status = 'FAILED';
+        " 2>/dev/null || true
+    fi
+done
 
 # Otimizar títulos e hashtags com estratégia de alto engajamento
 python3 update_growth_metadata.py || true

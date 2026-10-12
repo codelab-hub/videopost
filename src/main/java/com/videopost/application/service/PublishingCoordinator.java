@@ -82,45 +82,41 @@ public class PublishingCoordinator {
         for (Platform platform : targetPlatforms) {
             // 2. Mecanismo de Idempotência: busca publicação existente
             Optional<Publication> existingPubOpt = publicationRepository.findByVideoIdAndPlatform(video.getId(), platform);
-            Publication publication;
 
-            if (existingPubOpt.isPresent()) {
-                publication = existingPubOpt.get();
-                // REGRA DE OURO: Nunca republique automaticamente algo já confirmado como publicado!
-                if (publication.isPublished()) {
-                    log.info("Publicação já confirmada anteriormente. Pulando plataforma={} videoId={}",
-                            platform, video.getId());
-                    results.add(new PlatformExecutionResult(
-                            platform, true, publication.getExternalId(), "Já publicado anteriormente (Idempotência garantida)", true
-                    ));
-                    currentPublications.add(publication);
-                    continue;
-                }
-            } else {
-                publication = Publication.createPending(video.getId(), platform);
-                publicationRepository.save(publication);
+            // REGRA DE OURO: Nunca republique automaticamente algo já confirmado como publicado!
+            if (existingPubOpt.isPresent() && existingPubOpt.get().isPublished()) {
+                Publication pub = existingPubOpt.get();
+                log.info("Publicação já confirmada anteriormente. Pulando plataforma={} videoId={}",
+                        platform, video.getId());
+                results.add(new PlatformExecutionResult(
+                        platform, true, pub.getExternalId(), "Já publicado anteriormente (Idempotência garantida)", true
+                ));
+                currentPublications.add(pub);
+                continue;
             }
 
             // 3. Recupera o publisher correspondente
             Optional<VideoPublisher> publisherOpt = publisherRegistry.getPublisher(platform);
             if (publisherOpt.isEmpty()) {
                 String errorMsg = "Nenhum publisher registrado para a plataforma " + platform;
-                publication.markFailed(errorMsg, Instant.now());
-                publicationRepository.update(publication);
+                log.warn(errorMsg);
                 results.add(new PlatformExecutionResult(platform, false, null, errorMsg, false));
-                currentPublications.add(publication);
                 continue;
             }
 
             VideoPublisher publisher = publisherOpt.get();
             if (!publisher.isAuthenticated()) {
-                String errorMsg = "Plataforma " + platform.getDisplayName() + " não autenticada no perfil atual.";
-                publication.markFailed(errorMsg, Instant.now());
-                publicationRepository.update(publication);
+                String errorMsg = "Plataforma " + platform.getDisplayName() + " não autenticada no perfil atual. Ignorada.";
+                log.warn(errorMsg);
                 results.add(new PlatformExecutionResult(platform, false, null, errorMsg, false));
-                currentPublications.add(publication);
                 continue;
             }
+
+            Publication publication = existingPubOpt.orElseGet(() -> {
+                Publication newPub = Publication.createPending(video.getId(), platform);
+                publicationRepository.save(newPub);
+                return newPub;
+            });
 
             // 4. Executa a publicação isolada para esta plataforma
             publication.markProcessing();
@@ -157,7 +153,12 @@ public class PublishingCoordinator {
         }
 
         // 5. Atualiza o status agregado do vídeo (COMPLETED, PARTIALLY_COMPLETED, FAILED)
-        video.evaluateStatusFromPublications(currentPublications);
+        if (currentPublications.isEmpty()) {
+            log.warn("Nenhuma publicação executada para o vídeo id={} filename='{}'.", video.getId(), video.getFilename());
+            video.setStatus(VideoStatus.FAILED);
+        } else {
+            video.evaluateStatusFromPublications(currentPublications);
+        }
         videoRepository.update(video);
 
         log.info("Processamento finalizado para o vídeo id={} novo status={}", video.getId(), video.getStatus());

@@ -144,21 +144,12 @@ def hydrate_cloud():
     config_b64 = os.getenv("VIDEOPOST_CONFIG_B64", "").strip()
     config_path = DOT_VIDEOPOST / "config.yml"
     videos_dir = os.getenv("VIDEOS_DIR", "/app/videos")
-    Path(videos_dir).mkdir(parents=True, exist_ok=True)
+    try:
+        Path(videos_dir).mkdir(parents=True, exist_ok=True)
+    except Exception:
+        pass
 
-    if config_b64:
-        try:
-            raw_cfg = base64.b64decode(config_b64).decode("utf-8")
-            # Replace local path with cloud path
-            import re
-            raw_cfg = re.sub(r'directory:\s*["\'].*?["\']', f'directory: "{videos_dir}"', raw_cfg)
-            config_path.write_text(raw_cfg, encoding="utf-8")
-            print("  ✓ config.yml restaurado e adaptado para diretório cloud")
-        except Exception as e:
-            print(f"  ⚠️ Falha ao decodificar VIDEOPOST_CONFIG_B64: {e}")
-    elif not config_path.exists():
-        # Default fallback config
-        default_cfg = f"""videos:
+    default_cfg = f"""videos:
   directory: "{videos_dir}"
 schedule:
   interval: "3h"
@@ -177,8 +168,22 @@ maxAttempts: 3
 captionFormat: "{{caption}}\\n\\n{{hashtags}}"
 activeProfile: "{profile}"
 """
+
+    if config_b64:
+        try:
+            raw_cfg = base64.b64decode(config_b64).decode("utf-8")
+            # Replace local path with cloud path
+            import re
+            raw_cfg = re.sub(r'directory:\s*["\'].*?["\']', f'directory: "{videos_dir}"', raw_cfg)
+            config_path.write_text(raw_cfg, encoding="utf-8")
+            print("  ✓ config.yml restaurado e adaptado para diretório cloud")
+        except Exception as e:
+            print(f"  ⚠️ Falha ao decodificar VIDEOPOST_CONFIG_B64: {e}")
+            config_path.write_text(default_cfg, encoding="utf-8")
+    else:
+        # Sempre garante config de nuvem com YouTube Shorts ativo
         config_path.write_text(default_cfg, encoding="utf-8")
-        print("  ✓ config.yml padrão criado com sucesso")
+        print("  ✓ config.yml de nuvem configurado com YouTube Shorts ativo")
 
     # 3. YouTube Encrypted Token
     yt_b64 = os.getenv("YOUTUBE_ENC_B64", "").strip()

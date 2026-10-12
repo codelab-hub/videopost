@@ -68,6 +68,7 @@ class PublishingCoordinatorTest {
         config.setPlatformEnabled(Platform.TIKTOK, true);
         config.setPlatformEnabled(Platform.FACEBOOK, true);
         config.setPlatformEnabled(Platform.KWAI, true);
+        config.setPlatformEnabled(Platform.YOUTUBE_SHORTS, false);
     }
 
     @Test
@@ -169,5 +170,25 @@ class PublishingCoordinatorTest {
 
         assertThat(summary.video().getStatus()).isEqualTo(VideoStatus.COMPLETED);
         verify(videoRepository, atLeastOnce()).update(video);
+    }
+
+    @Test
+    @DisplayName("Plataforma não autenticada deve ser ignorada e não deve impedir vídeo de ficar COMPLETED")
+    void shouldSkipUnauthenticatedPlatformAndCompleteVideoIfOtherPlatformSucceeds() {
+        Video video = Video.createNew("video.mp4", "/path/video.mp4", VideoMetadata.empty());
+
+        // TikTok e Facebook não autenticados, apenas Kwai autenticado
+        when(tiktokPublisher.isAuthenticated()).thenReturn(false);
+        when(facebookPublisher.isAuthenticated()).thenReturn(false);
+        when(kwaiPublisher.isAuthenticated()).thenReturn(true);
+        when(kwaiPublisher.publish(video)).thenReturn(PublishResult.success("kwai-ok-id"));
+
+        PublishingCoordinator.ExecutionSummary summary = coordinator.publishVideo(video, config, false);
+
+        // O vídeo deve ser COMPLETED (pois todas as plataformas autenticadas foram bem sucedidas)
+        assertThat(summary.video().getStatus()).isEqualTo(VideoStatus.COMPLETED);
+        verify(kwaiPublisher).publish(video);
+        verify(tiktokPublisher, never()).publish(any());
+        verify(facebookPublisher, never()).publish(any());
     }
 }

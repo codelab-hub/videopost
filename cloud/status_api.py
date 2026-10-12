@@ -147,9 +147,14 @@ def get_youtube_status() -> dict:
         next_sched = dict(next_row) if next_row else None
 
         conn.close()
+        profile = get_active_profile()
+        yt_cred = DOT_VIDEOPOST / "credentials" / profile / "youtube_shorts.enc"
+        is_auth = yt_cred.exists()
+
         return {
             "enabled": True,
             "running": is_running,
+            "authenticated": is_auth,
             "total_videos": total,
             "pending": pending,
             "published": published,
@@ -332,10 +337,14 @@ def publish_now(background_tasks: BackgroundTasks):
             try:
                 conn = sqlite3.connect(str(yt_db))
                 cur = conn.cursor()
-                cur.execute("SELECT filename FROM videos WHERE status IN ('PENDING', 'SCHEDULED') ORDER BY scheduled_at ASC LIMIT 1")
+                cur.execute("SELECT filename FROM videos WHERE status IN ('PENDING', 'SCHEDULED', 'FAILED') ORDER BY CASE WHEN status='SCHEDULED' THEN 1 WHEN status='PENDING' THEN 2 ELSE 3 END, scheduled_at ASC LIMIT 1")
                 row = cur.fetchone()
                 if row:
                     filename_to_publish = row[0]
+                    # Se estava FAILED, reseta para SCHEDULED
+                    conn.execute("UPDATE videos SET status = 'SCHEDULED' WHERE filename = ?", (filename_to_publish,))
+                    conn.execute("DELETE FROM publications WHERE video_id = (SELECT id FROM videos WHERE filename = ?) AND platform != 'YOUTUBE_SHORTS'", (filename_to_publish,))
+                    conn.commit()
                 conn.close()
             except Exception:
                 pass
