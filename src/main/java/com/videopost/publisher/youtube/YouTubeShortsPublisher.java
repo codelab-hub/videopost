@@ -18,6 +18,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -74,22 +75,20 @@ public class YouTubeShortsPublisher implements VideoPublisher {
 
         try {
             long fileSize = Files.size(videoPath);
-            String title = (video.getCaption() != null && !video.getCaption().isBlank())
-                    ? video.getCaption()
-                    : video.getFilename();
+            String title = buildOptimalTitle(video);
 
-            // Assegura que #Shorts está no título/descrição para categorização correta
+            // Assegura que #Shorts e hashtags estratégicas estão na descrição
             String description = video.toMetadata().formattedCaption();
-            if (!description.contains("#Shorts") && !description.contains("#shorts")) {
-                description = (description.isBlank() ? "" : description + "\n\n") + "#Shorts";
+            if (!description.toLowerCase().contains("#shorts")) {
+                description = (description.isBlank() ? title : description + "\n\n") + "#Shorts #noticiabrasil #noticias #brasil";
             }
 
-            log.info("Iniciando publicação no YouTube Shorts: id={} arquivo='{}'", video.getId(), video.getFilename());
+            log.info("Iniciando publicação no YouTube Shorts: id={} título='{}' arquivo='{}'", video.getId(), title, video.getFilename());
 
             Map<String, Object> snippet = new HashMap<>();
-            snippet.put("title", title.length() > 100 ? title.substring(0, 97) + "..." : title);
+            snippet.put("title", title);
             snippet.put("description", description);
-            snippet.put("tags", List.of("Shorts", "VideoPost"));
+            snippet.put("tags", buildOptimalTags(video));
 
             Map<String, Object> status = new HashMap<>();
             status.put("privacyStatus", config.privacyStatus());
@@ -256,5 +255,66 @@ public class YouTubeShortsPublisher implements VideoPublisher {
             log.error("Erro inesperado ao renovar token OAuth do YouTube: {}", e.getMessage(), e);
         }
         return null;
+    }
+
+    private String buildOptimalTitle(Video video) {
+        String base = (video.getCaption() != null && !video.getCaption().isBlank())
+                ? video.getCaption().trim()
+                : "";
+
+        // Se for nome de arquivo técnico, vazio ou ID numérico, gera título chamativo
+        if (base.isEmpty() 
+                || base.matches(".*\\.(mp4|mov|avi|mkv|webm).*") 
+                || base.matches("^[a-zA-Z0-9_\\-\\s]{12,}$")
+                || base.contains("210") || base.contains("1791")) {
+            base = "🚨 URGENTE: Veja o que está acontecendo no Brasil!";
+        } else {
+            // Remove prefixo de hashtag ou links
+            base = base.replaceAll("^#\\S+\\s*", "");
+            
+            // Pega a primeira frase impactante (até o primeiro ponto/exclamação/interrogação)
+            int firstPunctuation = -1;
+            for (int i = 0; i < base.length(); i++) {
+                char c = base.charAt(i);
+                if (c == '!' || c == '?' || (c == '.' && i > 10)) {
+                    firstPunctuation = i + 1;
+                    break;
+                }
+            }
+            if (firstPunctuation > 0 && firstPunctuation <= 65) {
+                base = base.substring(0, firstPunctuation).trim();
+            } else if (base.length() > 65) {
+                base = base.substring(0, 62).trim() + "...";
+            }
+        }
+
+        // Garante emoji de engajamento no início se não tiver
+        if (!base.startsWith("🚨") && !base.startsWith("🇧🇷") && !base.startsWith("⚡") && !base.startsWith("👀") && !base.startsWith("📢")) {
+            base = "🚨 " + base;
+        }
+
+        // Garante que #Shorts está no título (requisito crítico do YouTube para o feed de Shorts)
+        if (!base.toLowerCase().contains("#shorts")) {
+            if (base.length() + 8 <= 100) {
+                base = base + " #Shorts";
+            }
+        }
+
+        return base.length() > 100 ? base.substring(0, 97) + "..." : base;
+    }
+
+    private List<String> buildOptimalTags(Video video) {
+        List<String> tags = new ArrayList<>(List.of("Shorts", "Notícias", "Política", "Brasil", "Últimas Notícias", "Notícia Urgente", "Brasília", "Congresso"));
+        if (video.getHashtags() != null) {
+            try {
+                for (String tag : video.toMetadata().hashtags()) {
+                    String clean = tag.replace("#", "").trim();
+                    if (!clean.isBlank() && !tags.contains(clean)) {
+                        tags.add(clean);
+                    }
+                }
+            } catch (Exception ignored) {}
+        }
+        return tags;
     }
 }

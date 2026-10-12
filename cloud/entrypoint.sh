@@ -23,6 +23,9 @@ rm -f "$VIDEOS_DIR"/moranguinha* 2>/dev/null || true
 sqlite3 .videopost/profiles/${VIDEOPOST_PROFILE:-noticiabrasil}/videopost.db "DELETE FROM publications WHERE video_id IN (SELECT id FROM videos WHERE filename LIKE 'moranguinha%'); DELETE FROM videos WHERE filename LIKE 'moranguinha%';" 2>/dev/null || true
 sqlite3 .videopost/videopost.db "DELETE FROM publications WHERE video_id IN (SELECT id FROM videos WHERE filename LIKE 'moranguinha%'); DELETE FROM videos WHERE filename LIKE 'moranguinha%';" 2>/dev/null || true
 
+# Otimizar títulos e hashtags com estratégia de alto engajamento
+python3 update_growth_metadata.py || true
+
 # 3. Sincronização com o Google Drive em background
 if [ -n "$GDRIVE_FOLDER_ID" ] || [ -n "$GDRIVE_FOLDER_URL" ]; then
     INTERVAL="${DRIVE_SYNC_INTERVAL_MINUTES:-15}"

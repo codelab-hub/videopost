@@ -33,17 +33,11 @@ VIDEOS_DEFAULT_DIR = BASE_DIR / "videos"
 STATE_FILE = BASE_DIR / ".drive_sync_state.json"
 
 DEFAULT_HASHTAGS = [
-    "#flaviobolsonaro",
-    "#bolsonaro",
-    "#direitabrasil",
-    "#politica",
+    "#Shorts",
     "#noticiabrasil",
-    "#congresso",
-    "#conservador",
-    "#brasil",
-    "#opiniao",
-    "#fatos",
-    "#urgente"
+    "#noticias",
+    "#politica",
+    "#brasil"
 ]
 
 VIDEO_EXTENSIONS = {".mp4", ".mov", ".mkv", ".m4v", ".avi", ".webm"}
@@ -202,18 +196,29 @@ class GoogleDriveSync:
         return newly_synced
 
     def generate_missing_metadata(self):
-        """Para qualquer vídeo na pasta que não tenha arquivo .json irmão, cria automaticamente."""
+        """Para qualquer vídeo na pasta que não tenha arquivo .json irmão, cria automaticamente com gancho viral."""
+        import hashlib
+        VIRAL_HOOKS = [
+            "🚨 O debate urgente que está mexendo com o Brasil!",
+            "👀 Veja agora: A cena de Brasília que ninguém esperava!",
+            "⚡ ATENÇÃO: Declaração polêmica agita as redes sociais!",
+            "🇧🇷 A verdade sobre a economia e os bastidores da política!",
+            "📢 Momento histórico: Você concorda ou discorda dessa postura?",
+            "🔥 Assista até o fim: O detalhe que quase ninguém percebeu!",
+            "⚖️ Transparência já: O questionamento que divide o país!"
+        ]
         for file in self.target_dir.iterdir():
             if file.is_file() and file.suffix.lower() in VIDEO_EXTENSIONS:
                 json_sibling = file.with_suffix(".json")
                 if not json_sibling.exists():
-                    clean_title = file.stem.replace("_", " ").replace("-", " ").capitalize()
+                    h_val = int(hashlib.md5(file.stem.encode()).hexdigest(), 16)
+                    hook = VIRAL_HOOKS[h_val % len(VIRAL_HOOKS)]
                     meta = {
-                        "caption": f"🚨 {clean_title} | Notícias Urgentes e Fatos da Política",
+                        "caption": f"{hook}\n\nDeixe sua opinião sincera nos comentários! 👇",
                         "hashtags": self.default_hashtags
                     }
                     json_sibling.write_text(json.dumps(meta, indent=2, ensure_ascii=False), encoding="utf-8")
-                    logger.info(f"✨ Metadados automáticos gerados para {file.name} -> {json_sibling.name}")
+                    logger.info(f"✨ Metadados virais gerados para {file.name} -> {json_sibling.name}")
 
     def notify_platforms(self):
         """Atualiza a fila do TikTok e escaneia novos vídeos para o VideoPost."""

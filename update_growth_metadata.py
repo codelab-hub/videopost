@@ -1,24 +1,22 @@
 import os
 import json
 import sqlite3
+from pathlib import Path
 
-video_dir = "/Users/ludmilamoreira/Desktop/frutinhas do brasil/videos curtos campanha.nosync"
-tiktok_db = "/Users/ludmilamoreira/videopost/tiktok-service/tiktok_service.db"
-yt_db = "/Users/ludmilamoreira/videopost/.videopost/profiles/noticiabrasil/videopost.db"
+BASE_DIR = Path(__file__).resolve().parent
+video_dir = os.getenv("VIDEOS_DIR", str(BASE_DIR / "videos"))
+tiktok_db = str(BASE_DIR / "tiktok-service" / "tiktok_service.db")
+yt_db = str(BASE_DIR / ".videopost" / "profiles" / os.getenv("VIDEOPOST_PROFILE", "noticiabrasil") / "videopost.db")
+if not os.path.exists(yt_db):
+    yt_db = str(BASE_DIR / ".videopost" / "videopost.db")
 
 # Estratégia de hashtags para furar a bolha e atingir o público de Flávio Bolsonaro / Direita / Política Brasil
 TARGET_HASHTAGS = [
-    "#flaviobolsonaro",
-    "#bolsonaro",
-    "#direitabrasil",
-    "#politica",
+    "#Shorts",
     "#noticiabrasil",
-    "#congresso",
-    "#conservador",
-    "#brasil",
-    "#opiniao",
-    "#fatos",
-    "#urgente"
+    "#noticias",
+    "#politica",
+    "#brasil"
 ]
 
 # Mapeamento de legendas magnéticas com gatilhos de engajamento, curiosidade e debate
