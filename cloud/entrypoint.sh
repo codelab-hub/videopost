@@ -18,12 +18,8 @@ mkdir -p "$VIDEOS_DIR"
 mkdir -p .videopost/logs
 mkdir -p tiktok-service/logs
 
-# 3. Sincronização inicial com o Google Drive
+# 3. Sincronização com o Google Drive em background
 if [ -n "$GDRIVE_FOLDER_ID" ] || [ -n "$GDRIVE_FOLDER_URL" ]; then
-    echo "🔄 Disparando sincronização inicial com Google Drive..."
-    python3 cloud/drive_sync.py --once || echo "⚠️ Sincronização inicial avisou com retorno não-zero."
-    
-    # Inicia watcher em segundo plano
     INTERVAL="${DRIVE_SYNC_INTERVAL_MINUTES:-15}"
     echo "⏱️ Iniciando Drive Sync em background (a cada ${INTERVAL}m)..."
     python3 cloud/drive_sync.py --watch --interval "$INTERVAL" &
@@ -32,14 +28,14 @@ else
     echo "ℹ️ GDRIVE_FOLDER_ID não configurado. Vídeos locais de $VIDEOS_DIR serão processados."
 fi
 
-# 4. Iniciar daemon Java do VideoPost (YouTube Shorts)
+# 4. Iniciar daemon Java do VideoPost (YouTube Shorts) em background
 JAR_FILE="$DIR/target/videopost-cli-1.0.0-SNAPSHOT.jar"
 if [ -f "$JAR_FILE" ]; then
-    echo "🎥 Iniciando daemon do VideoPost para YouTube Shorts..."
-    # Se o perfil foi especificado
+    echo "🎥 Iniciando daemon do VideoPost para YouTube Shorts em background..."
     PROFILE="${VIDEOPOST_PROFILE:-noticiabrasil}"
-    java -jar "$JAR_FILE" start || true
-    echo "  ✓ Daemon VideoPost acionado."
+    java -jar "$JAR_FILE" start &
+    JAVA_PID=$!
+    echo "  ✓ Daemon VideoPost acionado (PID: $JAVA_PID)."
 else
     echo "⚠️ JAR do VideoPost não encontrado em $JAR_FILE. O daemon não foi iniciado."
 fi
@@ -56,7 +52,7 @@ cleanup() {
     echo "🛑 Encerrando VideoPost Cloud Engine..."
     if [ -n "$DRIVE_PID" ]; then kill "$DRIVE_PID" 2>/dev/null || true; fi
     if [ -n "$TIKTOK_PID" ]; then kill "$TIKTOK_PID" 2>/dev/null || true; fi
-    if [ -f "$JAR_FILE" ]; then java -jar "$JAR_FILE" stop 2>/dev/null || true; fi
+    if [ -n "$JAVA_PID" ]; then kill "$JAVA_PID" 2>/dev/null || true; fi
     exit 0
 }
 trap cleanup SIGTERM SIGINT
