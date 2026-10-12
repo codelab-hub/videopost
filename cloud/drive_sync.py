@@ -122,17 +122,24 @@ class GoogleDriveSync:
         newly_synced = []
 
         try:
-            downloaded = gdown.download_folder(
-                url=download_url,
-                output=str(temp_dir),
-                quiet=False,
-                use_cookies=False,
-                resume=True
-            )
+            try:
+                gdown.download_folder(
+                    url=download_url,
+                    output=str(temp_dir),
+                    quiet=False,
+                    use_cookies=False,
+                    resume=True
+                )
+            except Exception as e:
+                logger.warning(f"Aviso durante download de arquivos do Drive via gdown: {e}")
+                self.state["last_status"] = f"warning: {str(e)[:150]}"
 
-            # Mover arquivos baixados para o diretório final
+            # Mover arquivos baixados com sucesso para o diretório final
             for item in temp_dir.rglob("*"):
                 if item.is_file():
+                    # Ignorar arquivos de tamanho zero ou ocultos
+                    if item.stat().st_size == 0 or item.name.startswith("."):
+                        continue
                     dest_file = self.target_dir / item.name
                     if not dest_file.exists() or dest_file.stat().st_size != item.stat().st_size:
                         shutil.move(str(item), str(dest_file))
@@ -146,10 +153,9 @@ class GoogleDriveSync:
             shutil.rmtree(temp_dir, ignore_errors=True)
 
         except Exception as e:
-            logger.error(f"Erro durante download via gdown: {e}")
-            self.state["last_status"] = f"error: {str(e)}"
+            logger.error(f"Erro inesperado durante processamento do Google Drive: {e}")
+            self.state["last_status"] = f"error: {str(e)[:150]}"
             self._save_state()
-            raise e
 
         return newly_synced
 
