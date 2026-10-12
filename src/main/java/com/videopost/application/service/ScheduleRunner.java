@@ -104,8 +104,8 @@ public class ScheduleRunner {
                 if (runOnce) {
                     break;
                 }
-                // Aguarda novo escaneamento após intervalo
-                if (waitForNextCheck(interval)) break;
+                // Aguarda novo escaneamento após intervalo curto (15 segundos)
+                if (waitForNextCheck(Duration.ofSeconds(15))) break;
                 scanService.scanAndEnqueue(videosDir, interval);
                 continue;
             }
@@ -120,7 +120,10 @@ public class ScheduleRunner {
                 if (runOnce) {
                     break;
                 }
-                if (waitForNextCheck(waitTime)) break;
+                // Dorme em fatias de até 15 segundos para responder prontamente
+                Duration sleepTime = waitTime.compareTo(Duration.ofSeconds(15)) > 0 ? Duration.ofSeconds(15) : waitTime;
+                if (waitForNextCheck(sleepTime)) break;
+                continue;
             }
 
             // Publica o vídeo

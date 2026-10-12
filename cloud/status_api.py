@@ -319,6 +319,39 @@ def sync_drive(background_tasks: BackgroundTasks):
         "timestamp": datetime.utcnow().isoformat() + "Z"
     }
 
+@app.post("/api/publish-now")
+def publish_now(background_tasks: BackgroundTasks):
+    jar_path = BASE_DIR / "target" / "videopost-cli-1.0.0-SNAPSHOT.jar"
+    if not jar_path.exists():
+        raise HTTPException(status_code=500, detail="JAR do VideoPost não encontrado.")
+
+    def run_publish():
+        yt_db = get_yt_db_path()
+        filename_to_publish = None
+        if yt_db.exists():
+            try:
+                conn = sqlite3.connect(str(yt_db))
+                cur = conn.cursor()
+                cur.execute("SELECT filename FROM videos WHERE status IN ('PENDING', 'SCHEDULED') ORDER BY scheduled_at ASC LIMIT 1")
+                row = cur.fetchone()
+                if row:
+                    filename_to_publish = row[0]
+                conn.close()
+            except Exception:
+                pass
+
+        if filename_to_publish:
+            subprocess.run(["java", "-jar", str(jar_path), "publish", filename_to_publish], cwd=str(BASE_DIR))
+        else:
+            subprocess.run(["java", "-jar", str(jar_path), "start", "--once"], cwd=str(BASE_DIR))
+
+    background_tasks.add_task(run_publish)
+    return {
+        "status": "started",
+        "message": "Publicação imediata iniciada em segundo plano.",
+        "timestamp": datetime.utcnow().isoformat() + "Z"
+    }
+
 @app.get("/api/logs")
 def logs(lines: int = 50):
     yt_log_file = DOT_VIDEOPOST / "videopost.log"
@@ -380,6 +413,10 @@ def dashboard():
             </div>
 
             <div class="flex items-center space-x-3">
+                <button onclick="triggerPublishNow()" id="btn-publish" class="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 text-white rounded-lg text-sm font-semibold flex items-center gap-2 transition shadow-lg shadow-emerald-600/20 disabled:opacity-50">
+                    <i class="fa-solid fa-paper-plane" id="publish-icon"></i>
+                    <span>Publicar Agora</span>
+                </button>
                 <button onclick="triggerSync()" id="btn-sync" class="px-4 py-2 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white rounded-lg text-sm font-semibold flex items-center gap-2 transition shadow-lg shadow-red-600/20 disabled:opacity-50">
                     <i class="fa-solid fa-arrows-rotate" id="sync-icon"></i>
                     <span>Sincronizar Google Drive</span>
@@ -623,6 +660,30 @@ def dashboard():
                 tbody.innerHTML = html;
             } catch (err) {
                 console.error("Erro ao carregar fila:", err);
+            }
+        async function triggerPublishNow() {
+            const btn = document.getElementById('btn-publish');
+            const icon = document.getElementById('publish-icon');
+            btn.disabled = true;
+            icon.classList.add('fa-spin');
+            showToast('Disparando publicação imediata no YouTube...', 'fa-paper-plane');
+
+            try {
+                const res = await fetch('/api/publish-now', { method: 'POST' });
+                const json = await res.json();
+                if (res.ok) {
+                    showToast('Publicação iniciada com sucesso!', 'fa-check');
+                    setTimeout(() => { loadStatus(); loadQueue(); }, 3000);
+                } else {
+                    showToast(json.detail || 'Falha ao publicar.', 'fa-circle-xmark');
+                }
+            } catch (err) {
+                showToast('Erro de conexão ao publicar.', 'fa-circle-xmark');
+            } finally {
+                setTimeout(() => {
+                    btn.disabled = false;
+                    icon.classList.remove('fa-spin');
+                }, 3000);
             }
         }
 
